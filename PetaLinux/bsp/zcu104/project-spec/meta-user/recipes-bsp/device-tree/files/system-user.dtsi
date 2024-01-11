@@ -142,25 +142,6 @@
 	remote-endpoint = <&imx219_cam3_0>;
 };
 
-&xx_mix_masterv_mix {
-	v_mixv_tpg: endpoint {
-		remote-endpoint = <&tpg_outv_tpg>;
-	};
-};
-
-&v_axi4s_remap {
-	remap_ports: ports {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		remap_port0: port@0 {
-			reg = <0>;
-			v_axi4s_remapv_mix: endpoint {
-				remote-endpoint = <&mixer_crtcv_mix>;
-			};
-		};
-	};
-};
-
 &mipi_0_v_proc {
 	compatible = "xlnx,v-vpss-scaler-2.2";
 };

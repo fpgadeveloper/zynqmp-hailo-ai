@@ -13,8 +13,6 @@ JOBS ?= 8
 
 # valid targets (template name, flash size, flash interface)
 zcu104_target := zynqMP 0 0
-zcu102_hpc0_target := zynqMP 0 0
-zcu102_hpc1_target := zynqMP 0 0
 zcu106_hpc0_target := zynqMP 0 0
 pynqzu_target := zynqMP 0 0
 uzev_target := zynqMP 0 0

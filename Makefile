@@ -11,14 +11,12 @@ BD_NAME = rpi
 TARGET ?= none
 JOBS ?= 8
 
-# valid targets (template name, both (plnx+baremetal) or baremetal_only)
-zcu104_target := zynqMP both
-zcu102_hpc0_target := zynqMP both
-zcu102_hpc1_target := zynqMP both
-zcu106_hpc0_target := zynqMP both
-pynqzu_target := zynqMP both
-genesyszu_target := zynqMP baremetal_only
-uzev_target := zynqMP both
+# valid targets (template name)
+zcu104_target := zynqMP
+zcu106_hpc0_target := zynqMP
+pynqzu_target := zynqMP
+genesyszu_target := zynqMP
+uzev_target := zynqMP
 
 TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
 
@@ -51,16 +49,11 @@ VIT_BOOT_TARG = $(VIT_BOOT)/$(TARGET)
 BOOTIMAGE_DIR = $(ROOT_DIR)/bootimages
 TEMPBOOT_DIR = $(BOOTIMAGE_DIR)/$(BD_NAME)_$(TARGET)
 PETL_ZIP = $(BOOTIMAGE_DIR)/$(BD_NAME)_$(TARGET)_petalinux-2022-1.zip
-BARE_ZIP = $(BOOTIMAGE_DIR)/$(BD_NAME)_$(TARGET)_standalone-2022-1.zip
 BOOTIMAGE_LOCK = $(ROOT_DIR)/.$(TARGET).lock
 
 # These macros return values from the valid target lists defined above
 define get_template_name
 $(word 1,$($(1)_target))
-endef
-
-define get_both_or_baremetal_only
-$(word 2,$($(1)_target))
 endef
 
 # The name of the boot image of the baremetal app depends on the device
@@ -120,11 +113,7 @@ bootimage: check_target
 		rm -f $(BOOTIMAGE_LOCK); \
 	fi
 
-bootimage_locked: bootimage_$(call get_both_or_baremetal_only,$(TARGET))
-
-bootimage_baremetal_only: $(BARE_ZIP)
-
-bootimage_both: $(PETL_ZIP) $(BARE_ZIP)
+bootimage_locked: $(PETL_ZIP)
 
 ifeq ($(call get_template_name,$(TARGET)), microblaze)
 $(PETL_ZIP): $(PETL_BOOT_MCS) $(PETL_BOOT_PRM) $(PETL_IMAGE_ELF) $(PETL_SYSTEM_BIT)
@@ -189,18 +178,13 @@ PETL_BUILD_DEPS = $(PETL_BOOT_MCS) $(PETL_BOOT_PRM) $(PETL_IMAGE_ELF) $(PETL_SYS
 $(PETL_BUILD_DEPS):
 	$(MAKE) --no-print-directory -C $(PETL_ROOT) petalinux TARGET=$(TARGET) JOBS=$(JOBS)
 
-$(BARE_ZIP): $(VIT_BOOT_FILE)
-	@echo 'Gather standalone application output products for $(TARGET)'
-	mkdir -p $(BOOTIMAGE_DIR)
-	cd $(VIT_BOOT_TARG) && zip -r $(BARE_ZIP) .
-
 $(VIT_BOOT_FILE):
 	$(MAKE) --no-print-directory -C $(VIT_ROOT) workspace TARGET=$(TARGET) JOBS=$(JOBS)
 	@if [ ! -e $@ ]; then echo "Error: $@ was not created for $(TARGET)."; exit 1; fi
 
 .PHONY: clean
 clean: check_target
-	$(RM) $(PETL_ZIP) $(BARE_ZIP)
+	$(RM) $(PETL_ZIP)
 
 .PHONY: clean_all
 clean_all: 

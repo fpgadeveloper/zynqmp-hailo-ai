@@ -28,7 +28,7 @@ misc=:solution_name=link
 
 param=compiler.addOutputTypes=sd_card
 #Following switch will ignore the timing violations during xclbin creation
-param=compiler.skipTimingCheckAndFrequencyScaling=1
+#param=compiler.skipTimingCheckAndFrequencyScaling=1
 
 [vivado]
 prop=run.impl_1.STEPS.OPT_DESIGN.ARGS.DIRECTIVE=ExploreArea
