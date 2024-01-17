@@ -303,7 +303,10 @@ CONFIG_YOCTO_NETWORK_SSTATE_FEEDS_URL="http://petalinux.xilinx.com/sswreleases/r
 #
 # User Layers
 #
-CONFIG_USER_LAYER_0=""
+CONFIG_USER_LAYER_0="${PROOT}/project-spec/meta-user/meta-hailo/meta-hailo-accelerator/"
+CONFIG_USER_LAYER_1="${PROOT}/project-spec/meta-user/meta-hailo/meta-hailo-libhailort/"
+CONFIG_USER_LAYER_2="${PROOT}/project-spec/meta-user/meta-hailo/meta-hailo-tappas/"
+CONFIG_USER_LAYER_3=""
 CONFIG_SUBSYSTEM_BOOTARGS_GENERATED=" earlycon console=ttyPS0,115200 clk_ignore_unused init_fatal_sh=1 cma=1000M"
 
 # RPi Camera FMC customizations
