@@ -155,6 +155,9 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
   create_fileset -srcset sources_1
 }
 
+# Set IP repo path
+set_property ip_repo_paths "./ip/build/$board_name/" [current_project]
+update_ip_catalog
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]

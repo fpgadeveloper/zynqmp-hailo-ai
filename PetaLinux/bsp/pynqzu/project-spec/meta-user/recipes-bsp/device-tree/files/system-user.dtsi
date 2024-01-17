@@ -282,6 +282,13 @@
 		regulator-max-microvolt = <1200000>;
 	};
 	
+	/* zocl */
+	zyxclmm_drm {
+		compatible = "xlnx,zocl";
+		status = "okay";
+		interrupt-parent = <&gic>;
+		interrupts = <0 108  4>, <0 109  4>, <0 110  4>, <0 111  4>;
+	};
 };
 
 &mipi_0_axi_iic_0 {
@@ -392,6 +399,135 @@
 	remote-endpoint = <&imx219_cam3_0>;
 };
 
+&mipi_0_isppipeline {
+	compatible = "xlnx,ISPPipeline_accel";
+	reset-gpios = <&gpio 86 1>;
+	xlnx,max-height = <1080>;
+	xlnx,max-width = <1920>;
+	xlnx,rgain = <128>;
+	xlnx,bgain = <210>;
+	xlnx,pawb = <350>;
+	xlnx,mode-reg = <1>;
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+			port@0 {
+			reg = <0>;
+			xlnx,video-width = <10>;
+			xlnx,cfa-pattern = "rggb";
+				mipi_0_isppipelinemipi_0_mipi_csi2_rx_subsyst_0: endpoint {
+				remote-endpoint = <&mipi_csirx_outmipi_0_mipi_csi2_rx_subsyst_0>;
+			};
+		};
+			port@1 {
+			reg = <1>;
+			xlnx,video-width = <8>;
+			xlnx,cfa-pattern = "rggb";
+			
+			imx_cam0_demosaic_out: endpoint {
+				remote-endpoint = <&imx_cam0_scaler_in>;
+			};
+		};
+	};
+};
+
+&mipi_1_isppipeline {
+	compatible = "xlnx,ISPPipeline_accel";
+	reset-gpios = <&gpio 94 1>;
+	xlnx,max-height = <1080>;
+	xlnx,max-width = <1920>;
+	xlnx,rgain = <128>;
+	xlnx,bgain = <210>;
+	xlnx,pawb = <350>;
+	xlnx,mode-reg = <1>;
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+			port@0 {
+			reg = <0>;
+			xlnx,video-width = <10>;
+			xlnx,cfa-pattern = "rggb";
+				mipi_1_isppipelinemipi_1_mipi_csi2_rx_subsyst_0: endpoint {
+				remote-endpoint = <&mipi_csirx_outmipi_1_mipi_csi2_rx_subsyst_0>;
+			};
+		};
+			port@1 {
+			reg = <1>;
+			xlnx,video-width = <8>;
+			xlnx,cfa-pattern = "rggb";
+			
+			imx_cam1_demosaic_out: endpoint {
+				remote-endpoint = <&imx_cam1_scaler_in>;
+			};
+		};
+	};
+};
+
+&mipi_2_isppipeline {
+	compatible = "xlnx,ISPPipeline_accel";
+	reset-gpios = <&gpio 102 1>;
+	xlnx,max-height = <1080>;
+	xlnx,max-width = <1920>;
+	xlnx,rgain = <128>;
+	xlnx,bgain = <210>;
+	xlnx,pawb = <350>;
+	xlnx,mode-reg = <1>;
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+			port@0 {
+			reg = <0>;
+			xlnx,video-width = <10>;
+			xlnx,cfa-pattern = "rggb";
+				mipi_2_isppipelinemipi_2_mipi_csi2_rx_subsyst_0: endpoint {
+				remote-endpoint = <&mipi_csirx_outmipi_2_mipi_csi2_rx_subsyst_0>;
+			};
+		};
+			port@1 {
+			reg = <1>;
+			xlnx,video-width = <8>;
+			xlnx,cfa-pattern = "rggb";
+			
+			imx_cam2_demosaic_out: endpoint {
+				remote-endpoint = <&imx_cam2_scaler_in>;
+			};
+		};
+	};
+};
+
+&mipi_3_isppipeline {
+	compatible = "xlnx,ISPPipeline_accel";
+	reset-gpios = <&gpio 110 1>;
+	xlnx,max-height = <1080>;
+	xlnx,max-width = <1920>;
+	xlnx,rgain = <128>;
+	xlnx,bgain = <210>;
+	xlnx,pawb = <350>;
+	xlnx,mode-reg = <1>;
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+			port@0 {
+			reg = <0>;
+			xlnx,video-width = <10>;
+			xlnx,cfa-pattern = "rggb";
+				mipi_3_isppipelinemipi_3_mipi_csi2_rx_subsyst_0: endpoint {
+				remote-endpoint = <&mipi_csirx_outmipi_3_mipi_csi2_rx_subsyst_0>;
+			};
+		};
+			port@1 {
+			reg = <1>;
+			xlnx,video-width = <8>;
+			xlnx,cfa-pattern = "rggb";
+			
+			imx_cam3_demosaic_out: endpoint {
+				remote-endpoint = <&imx_cam3_scaler_in>;
+			};
+		};
+	};
+};
+
+
 &mipi_0_v_proc {
 	compatible = "xlnx,v-vpss-scaler-2.2";
 };
@@ -406,6 +542,30 @@
 
 &mipi_3_v_proc {
 	compatible = "xlnx,v-vpss-scaler-2.2";
+};
+
+&scaler_port0mipi_0_v_proc {
+	imx_cam0_scaler_in: endpoint {
+		remote-endpoint = <&imx_cam0_demosaic_out>;
+	};
+};
+
+&scaler_port0mipi_1_v_proc {
+	imx_cam1_scaler_in: endpoint {
+		remote-endpoint = <&imx_cam1_demosaic_out>;
+	};
+};
+
+&scaler_port0mipi_2_v_proc {
+	imx_cam2_scaler_in: endpoint {
+		remote-endpoint = <&imx_cam2_demosaic_out>;
+	};
+};
+
+&scaler_port0mipi_3_v_proc {
+	imx_cam3_scaler_in: endpoint {
+		remote-endpoint = <&imx_cam3_demosaic_out>;
+	};
 };
 
 

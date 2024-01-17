@@ -14,4 +14,20 @@ CONFIG_packagegroup-petalinux-v4lutils
 CONFIG_cmake
 CONFIG_opencv-staticdev
 CONFIG_initcams
+CONFIG_xrt
+CONFIG_xrt-dev
+CONFIG_jansson
+CONFIG_zocl
+CONFIG_opencl-clhpp-dev
+CONFIG_opencl-headers-dev
+CONFIG_htop
+CONFIG_unilog
+CONFIG_target-factory
+CONFIG_vart
+CONFIG_xir
+CONFIG_vitis-ai-library
+CONFIG_vvas-utils
+CONFIG_vvas-gst
+CONFIG_vvas-accel-libs
+CONFIG_xilinx-isppipeline
 

@@ -15,18 +15,23 @@ TARGET ?= none
 JOBS ?= 8
 
 # valid targets
-zcu104_target := 0
-zcu106_hpc0_target := 0
-pynqzu_target := 0
-genesyszu_target := 0
-uzev_target := 0
+zcu104_target := xilinx.com zcu104
+zcu106_hpc0_target := xilinx.com zcu106
+pynqzu_target := tul.com.tw pynqzu
+genesyszu_target := digilentinc.com gzu_5ev
+uzev_target := avnet.com ultrazed_7ev_cc
 
 TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
+
+BOARD_URL = $(word 1,$($(TARGET)_target))
+BOARD_NAME = $(word 2,$($(TARGET)_target))
 
 # Vivado paths
 VIV_SCRIPT_BD = scripts/build.tcl
 VIV_SCRIPT_XSA = scripts/xsa.tcl
 VIV_DIR = $(TARGET)
+IP_DIR= ./ip
+IP_DONE = $(IP_DIR)/build/$(BOARD_NAME)/ip_done.txt
 
 # output files
 VIV_XPR = $(VIV_DIR)/$(TARGET).xpr
@@ -78,6 +83,12 @@ help:
 .PHONY: all
 all: xsa_all
 
+.PHONY: ip
+ip: $(IP_DONE)
+
+$(IP_DONE):
+	make -C $(IP_DIR) ip TARGET=$(TARGET)
+
 .PHONY: xsa
 xsa:
 	@if [ -f $(VIV_LOCK) ]; then \
@@ -119,7 +130,7 @@ project: check_target
 	fi
 
 project_locked: $(VIV_XPR)
-$(VIV_XPR):
+$(VIV_XPR): $(IP_DONE)
 	@echo 'Create Vivado project $(TARGET)'
 	$(RM) $(VIV_XPR_LOG) $(VIV_XPR_JOU)
 	$(VIVADO) -mode batch -notrace -source $(VIV_SCRIPT_BD) -log $(VIV_XPR_LOG) -journal $(VIV_XPR_JOU) -tclargs $(TARGET)
@@ -136,12 +147,14 @@ project_all:
 clean: check_target
 	@echo 'Cleaning project $(TARGET)'
 	$(RM) $(VIV_DIR)
+	$(MAKE) -C $(IP_DIR) clean TARGET=$(TARGET)
 
 .PHONY: clean_all
 clean_all:
 	for targ in $(TARGET_LIST); do \
 		$(MAKE) clean TARGET=$$targ; \
 	done
+	$(MAKE) -C $(IP_DIR) clean_all
 	$(RM) .Xil vivado*.log vivado*.jou
 
 check_target:

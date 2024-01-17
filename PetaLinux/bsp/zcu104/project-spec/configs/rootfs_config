@@ -4136,10 +4136,6 @@ CONFIG_opencl-headers=y
 CONFIG_protobuf=y
 CONFIG_libstdcPLUSPLUS=y
 CONFIG_gdb=y
-CONFIG_gstreamer1.0-plugins-bad=y
-CONFIG_gstreamer1.0-plugins-base=y
-CONFIG_gstreamer1.0-plugins-base-apps=y
-CONFIG_gstreamer1.0-plugins-good=y
 CONFIG_net-tools=y
 CONFIG_packagegroup-core-buildessential=y
 CONFIG_python3=y
@@ -4147,8 +4143,6 @@ CONFIG_v4l-utils=y
 CONFIG_libv4l=y
 CONFIG_media-ctl=y
 CONFIG_valgrind=y
-CONFIG_gstreamer1.0=y
-CONFIG_gstreamer1.0-omx=y
 CONFIG_resize-part=y
 CONFIG_packagegroup-petalinux-multimedia=y
 CONFIG_packagegroup-petalinux-opencv=y
@@ -4158,6 +4152,24 @@ CONFIG_packagegroup-petalinux-v4lutils=y
 CONFIG_cmake=y
 CONFIG_opencv-staticdev=y
 CONFIG_initcams=y
+CONFIG_htop=y
+CONFIG_jansson=y
+CONFIG_target-factory=y
+CONFIG_unilog=y
+CONFIG_vart=y
+CONFIG_vitis-ai-library=y
+CONFIG_xir=y
+CONFIG_vvas-accel-libs=y
+CONFIG_vvas-gst=y
+CONFIG_vvas-utils=y
+CONFIG_packagegroup-petalinux-matchbox=n
+CONFIG_xilinx-isppipeline=y
 
 CONFIG_ADD_USERS_TO_GROUPS="petalinux:audio,video,disk,kmem;"
+
+# For dnf
+CONFIG_imagefeature-package-management=y
+CONFIG_package-feed-uris=""
+CONFIG_package-feed-archs=""
+CONFIG_imagefeature-debug-tweaks=y
 

@@ -34,6 +34,7 @@ CONFIG_vitis-ai-library
 CONFIG_vvas-utils
 CONFIG_vvas-gst
 CONFIG_vvas-accel-libs
+CONFIG_xilinx-isppipeline
 
 # FPGA Drive FMC additions
 

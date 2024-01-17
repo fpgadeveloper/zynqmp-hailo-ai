@@ -28,8 +28,8 @@ TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
 # Kernel name
 KERNEL_DIR = kernels
 KERNEL = v_multi_scaler
-KERNEL_SUBDIR = $(KERNEL_DIR)/$(KERNEL)
-KERNEL_XO = $(KERNEL_SUBDIR)/xo/$(KERNEL).xo
+KERNEL_SUBDIR = $(KERNEL_DIR)/build/$(TARGET)/$(KERNEL)
+KERNEL_XO = $(KERNEL_SUBDIR)/$(KERNEL).xo
 TARGET_OPT = hw
 
 # Vivado
@@ -106,7 +106,7 @@ $(XCLBIN_FILE): $(KERNEL_XO)
 .PHONY: kernel
 kernel: $(KERNEL_XO)
 $(KERNEL_XO): $(PFM_FILE)
-	$(MAKE) -C $(KERNEL_SUBDIR) all PLATFORM_FILE=$(PFM_FILE)
+	$(MAKE) -C $(KERNEL_DIR) all PLATFORM_FILE=$(PFM_FILE) TARGET=$(TARGET)
 
 $(PFM_FILE): $(VIV_XSA)
 	$(XSCT) $(VIT_SCRIPT_PFM) -xsa $(VIV_XSA) -targ $(TARGET)
@@ -120,10 +120,11 @@ package:
 	cp $(CONTAINER_DIR)/link/vivado/vpl/prj/prj.runs/impl_1/*.bit $(SD_CARD_DIR)
 	cp $(CONTAINER_DIR)/*.xclbin $(SD_CARD_DIR)
 
-#.PHONY: clean
+.PHONY: clean
 clean: check_target
 	-$(RM) $(CONTAINER_DIR)
 	-$(RM) $(PFM_WORKSPACE)
+	$(MAKE) -C $(KERNEL_DIR) clean TARGET=$(TARGET)
 
 .PHONY: clean_all
 clean_all: 
@@ -132,7 +133,7 @@ clean_all:
 		$(MAKE) --no-print-directory clean TARGET=$${targ}; \
 	done; \
 	}
-	$(MAKE) -C $(KERNEL_SUBDIR) clean
+	$(MAKE) -C $(KERNEL_DIR) clean_all
 	-$(RM) *.log _x *.jou v++* *.xclbin *.ini *.xsa .Xil
 	-$(RM) packaged* tmp_*
 

@@ -35,6 +35,8 @@ if {$ps_cell ne ""} {
 		}
 	}
 }
+
+# Only applied when design has VCU
 set intr_cell [get_bd_cells * -hierarchical -quiet -filter {NAME =~ "axi_ic_mcu"}]
 if {$intr_cell ne ""} {
 	set intfCount [get_property CONFIG.NUM_SI $intr_cell]
@@ -47,8 +49,11 @@ if {$intr_cell ne ""} {
 	}
 }
 
-startgroup
-set_property -dict [list CONFIG.S00_HAS_DATA_FIFO {0} CONFIG.S01_HAS_DATA_FIFO {0}] [get_bd_cells vcu/axi_ic_vcu_dec]
+# Only applied when design has VCU
+set axi_ic_vcu_dec [get_bd_cells * -hierarchical -quiet -filter {NAME =~ "axi_ic_vcu_dec"}]
+if {$axi_ic_vcu_dec ne ""} {
+	set_property -dict [list CONFIG.S00_HAS_DATA_FIFO {0} CONFIG.S01_HAS_DATA_FIFO {0}] $axi_ic_vcu_dec
+}
+
 set_property -dict [list CONFIG.S00_HAS_DATA_FIFO {0} CONFIG.S01_HAS_DATA_FIFO {0}] [get_bd_cells axi_ic_zynq_ultra_ps_e_0_S_AXI_HP3_FPD]
-endgroup
 

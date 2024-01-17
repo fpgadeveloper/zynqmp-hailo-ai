@@ -4164,6 +4164,7 @@ CONFIG_vvas-accel-libs=y
 CONFIG_vvas-gst=y
 CONFIG_vvas-utils=y
 CONFIG_packagegroup-petalinux-matchbox=n
+CONFIG_xilinx-isppipeline=y
 
 CONFIG_ADD_USERS_TO_GROUPS="petalinux:audio,video,disk,kmem;"
 
@@ -4186,6 +4187,7 @@ CONFIG_bridge-utils=y
 CONFIG_coreutils=y
 CONFIG_nvme-cli=y
 
+# For dnf
 CONFIG_imagefeature-package-management=y
 CONFIG_package-feed-uris=""
 CONFIG_package-feed-archs=""

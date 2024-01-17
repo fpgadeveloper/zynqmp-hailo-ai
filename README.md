@@ -49,6 +49,34 @@ In order to test this design on hardware, you will need the following:
 * [Genesys-ZU](https://digilent.com/shop/genesys-zu-zynq-ultrascale-mpsoc-development-board/) (LPC: 4x cameras)
 * [UltraZed EV carrier](https://www.xilinx.com/products/boards-and-kits/1-y3n9v1.html) (HPC: 4x cameras)
 
+## Build instructions
+
+This repo contains submodules. To clone this repo, run:
+```
+git clone --recursive https://github.com/fpgadeveloper/zynqmp-hailo-ai.git
+```
+
+Source Vivado and PetaLinux tools:
+
+```
+source <path-to-petalinux>/2022.1/settings.sh
+source <path-to-vivado>/2022.1/settings64.sh
+```
+
+Build all (Vivado project, accelerator kernel and PetaLinux):
+
+```
+cd zynqmp-hailo-ai/PetaLinux
+make petalinux TARGET=uzev
+```
+
+Build the Vivado project only:
+
+```
+cd zynqmp-hailo-ai/Vivado
+make project TARGET=uzev
+```
+
 ## Contribute
 
 We strongly encourage community contribution to these projects. Please make a pull request if you

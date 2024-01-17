@@ -32,6 +32,37 @@
 		regulator-max-microvolt = <1200000>;
 	};
 	
+	pcam_clk: pcam_clk {
+		#clock-cells = <0>;
+		compatible = "fixed-clock";
+		clock-frequency = <12000000>;
+	};
+	
+	DOVDD: fixed_regulator_DOVDD@0 {
+		compatible = "regulator-fixed";
+		regulator-name = "DOVDD_reg";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		/* gpio = <&gpio0 56 GPIO_ACTIVE_HIGH>; */
+		startup-delay-us = <50000>;  
+		enable-active-high;
+	};
+	
+	AVDD: fixed_regulator_AVDD@1 {
+		compatible = "regulator-fixed";
+		regulator-name = "AVDD_reg";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+
+	};
+	
+	DVDD: fixed_regulator_DVDD@2 {
+		compatible = "regulator-fixed";
+		regulator-name = "DVDD_reg";
+		regulator-min-microvolt = <1500000>;
+		regulator-max-microvolt = <1500000>;
+	};
+
 	/* zocl */
 	zyxclmm_drm {
 		compatible = "xlnx,zocl";
@@ -58,6 +89,25 @@
 			};
 		};
 	};
+	ov5640_cam0: camera@3c {
+		compatible = "ovti,ov5640";
+		reg = <0x3c>;
+		clocks = <&pcam_clk>;
+		/* clock-names = "xclk"; */
+		DOVDD-supply = <&DOVDD>; /* 1.8v */
+		AVDD-supply = <&AVDD>;  /* 2.8v */
+		DVDD-supply = <&DVDD>;  /* 1.5v */
+
+		/* powerdown-gpios = <&gpio0 58 GPIO_ACTIVE_HIGH>; */
+		/* reset-gpios = <&gpio0 59 GPIO_ACTIVE_LOW>; */
+		port {
+			ov5640_cam0_0: endpoint {
+				remote-endpoint = <&mipi_csi_inmipi_0_mipi_csi2_rx_subsyst_0>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+	};	
 };
 
 &mipi_1_axi_iic_0 {
@@ -77,6 +127,25 @@
 			};
 		};
 	};
+	ov5640_cam1: camera@3c {
+		compatible = "ovti,ov5640";
+		reg = <0x3c>;
+		clocks = <&pcam_clk>;
+		/* clock-names = "xclk"; */
+		DOVDD-supply = <&DOVDD>; /* 1.8v */
+		AVDD-supply = <&AVDD>;  /* 2.8v */
+		DVDD-supply = <&DVDD>;  /* 1.5v */
+
+		/* powerdown-gpios = <&gpio0 58 GPIO_ACTIVE_HIGH>; */
+		/* reset-gpios = <&gpio0 59 GPIO_ACTIVE_LOW>; */
+		port {
+			ov5640_cam1_0: endpoint {
+				remote-endpoint = <&mipi_csi_inmipi_1_mipi_csi2_rx_subsyst_0>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+	};	
 };
 
 &mipi_2_axi_iic_0 {
@@ -96,6 +165,25 @@
 			};
 		};
 	};
+	ov5640_cam2: camera@3c {
+		compatible = "ovti,ov5640";
+		reg = <0x3c>;
+		clocks = <&pcam_clk>;
+		/* clock-names = "xclk"; */
+		DOVDD-supply = <&DOVDD>; /* 1.8v */
+		AVDD-supply = <&AVDD>;  /* 2.8v */
+		DVDD-supply = <&DVDD>;  /* 1.5v */
+
+		/* powerdown-gpios = <&gpio0 58 GPIO_ACTIVE_HIGH>; */
+		/* reset-gpios = <&gpio0 59 GPIO_ACTIVE_LOW>; */
+		port {
+			ov5640_cam2_0: endpoint {
+				remote-endpoint = <&mipi_csi_inmipi_2_mipi_csi2_rx_subsyst_0>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+	};	
 };
 
 &mipi_3_axi_iic_0 {
@@ -115,6 +203,25 @@
 			};
 		};
 	};
+	ov5640_cam3: camera@3c {
+		compatible = "ovti,ov5640";
+		reg = <0x3c>;
+		clocks = <&pcam_clk>;
+		/* clock-names = "xclk"; */
+		DOVDD-supply = <&DOVDD>; /* 1.8v */
+		AVDD-supply = <&AVDD>;  /* 2.8v */
+		DVDD-supply = <&DVDD>;  /* 1.5v */
+
+		/* powerdown-gpios = <&gpio0 58 GPIO_ACTIVE_HIGH>; */
+		/* reset-gpios = <&gpio0 59 GPIO_ACTIVE_LOW>; */
+		port {
+			ov5640_cam3_0: endpoint {
+				remote-endpoint = <&mipi_csi_inmipi_3_mipi_csi2_rx_subsyst_0>;
+				clock-lanes = <0>;
+				data-lanes = <1 2>;
+			};
+		};
+	};	
 };
 
 &mipi_0_mipi_csi2_rx_subsyst_0 {
@@ -149,6 +256,135 @@
 	remote-endpoint = <&imx219_cam3_0>;
 };
 
+&mipi_0_isppipeline {
+	compatible = "xlnx,ISPPipeline_accel";
+	reset-gpios = <&gpio 86 1>;
+	xlnx,max-height = <1080>;
+	xlnx,max-width = <1920>;
+	xlnx,rgain = <128>;
+	xlnx,bgain = <210>;
+	xlnx,pawb = <350>;
+	xlnx,mode-reg = <1>;
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+			port@0 {
+			reg = <0>;
+			xlnx,video-width = <10>;
+			xlnx,cfa-pattern = "rggb";
+				mipi_0_isppipelinemipi_0_mipi_csi2_rx_subsyst_0: endpoint {
+				remote-endpoint = <&mipi_csirx_outmipi_0_mipi_csi2_rx_subsyst_0>;
+			};
+		};
+			port@1 {
+			reg = <1>;
+			xlnx,video-width = <8>;
+			xlnx,cfa-pattern = "rggb";
+			
+			imx_cam0_demosaic_out: endpoint {
+				remote-endpoint = <&imx_cam0_scaler_in>;
+			};
+		};
+	};
+};
+
+&mipi_1_isppipeline {
+	compatible = "xlnx,ISPPipeline_accel";
+	reset-gpios = <&gpio 94 1>;
+	xlnx,max-height = <1080>;
+	xlnx,max-width = <1920>;
+	xlnx,rgain = <128>;
+	xlnx,bgain = <210>;
+	xlnx,pawb = <350>;
+	xlnx,mode-reg = <1>;
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+			port@0 {
+			reg = <0>;
+			xlnx,video-width = <10>;
+			xlnx,cfa-pattern = "rggb";
+				mipi_1_isppipelinemipi_1_mipi_csi2_rx_subsyst_0: endpoint {
+				remote-endpoint = <&mipi_csirx_outmipi_1_mipi_csi2_rx_subsyst_0>;
+			};
+		};
+			port@1 {
+			reg = <1>;
+			xlnx,video-width = <8>;
+			xlnx,cfa-pattern = "rggb";
+			
+			imx_cam1_demosaic_out: endpoint {
+				remote-endpoint = <&imx_cam1_scaler_in>;
+			};
+		};
+	};
+};
+
+&mipi_2_isppipeline {
+	compatible = "xlnx,ISPPipeline_accel";
+	reset-gpios = <&gpio 102 1>;
+	xlnx,max-height = <1080>;
+	xlnx,max-width = <1920>;
+	xlnx,rgain = <128>;
+	xlnx,bgain = <210>;
+	xlnx,pawb = <350>;
+	xlnx,mode-reg = <1>;
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+			port@0 {
+			reg = <0>;
+			xlnx,video-width = <10>;
+			xlnx,cfa-pattern = "rggb";
+				mipi_2_isppipelinemipi_2_mipi_csi2_rx_subsyst_0: endpoint {
+				remote-endpoint = <&mipi_csirx_outmipi_2_mipi_csi2_rx_subsyst_0>;
+			};
+		};
+			port@1 {
+			reg = <1>;
+			xlnx,video-width = <8>;
+			xlnx,cfa-pattern = "rggb";
+			
+			imx_cam2_demosaic_out: endpoint {
+				remote-endpoint = <&imx_cam2_scaler_in>;
+			};
+		};
+	};
+};
+
+&mipi_3_isppipeline {
+	compatible = "xlnx,ISPPipeline_accel";
+	reset-gpios = <&gpio 110 1>;
+	xlnx,max-height = <1080>;
+	xlnx,max-width = <1920>;
+	xlnx,rgain = <128>;
+	xlnx,bgain = <210>;
+	xlnx,pawb = <350>;
+	xlnx,mode-reg = <1>;
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+			port@0 {
+			reg = <0>;
+			xlnx,video-width = <10>;
+			xlnx,cfa-pattern = "rggb";
+				mipi_3_isppipelinemipi_3_mipi_csi2_rx_subsyst_0: endpoint {
+				remote-endpoint = <&mipi_csirx_outmipi_3_mipi_csi2_rx_subsyst_0>;
+			};
+		};
+			port@1 {
+			reg = <1>;
+			xlnx,video-width = <8>;
+			xlnx,cfa-pattern = "rggb";
+			
+			imx_cam3_demosaic_out: endpoint {
+				remote-endpoint = <&imx_cam3_scaler_in>;
+			};
+		};
+	};
+};
+
+
 &mipi_0_v_proc {
 	compatible = "xlnx,v-vpss-scaler-2.2";
 };
@@ -163,6 +399,30 @@
 
 &mipi_3_v_proc {
 	compatible = "xlnx,v-vpss-scaler-2.2";
+};
+
+&scaler_port0mipi_0_v_proc {
+	imx_cam0_scaler_in: endpoint {
+		remote-endpoint = <&imx_cam0_demosaic_out>;
+	};
+};
+
+&scaler_port0mipi_1_v_proc {
+	imx_cam1_scaler_in: endpoint {
+		remote-endpoint = <&imx_cam1_demosaic_out>;
+	};
+};
+
+&scaler_port0mipi_2_v_proc {
+	imx_cam2_scaler_in: endpoint {
+		remote-endpoint = <&imx_cam2_demosaic_out>;
+	};
+};
+
+&scaler_port0mipi_3_v_proc {
+	imx_cam3_scaler_in: endpoint {
+		remote-endpoint = <&imx_cam3_demosaic_out>;
+	};
 };
 
 
