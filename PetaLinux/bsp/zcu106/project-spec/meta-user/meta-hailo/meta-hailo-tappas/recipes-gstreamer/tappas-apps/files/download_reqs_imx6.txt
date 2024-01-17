@@ -1,0 +1,8 @@
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/general/hefs/fast_depth.hef -> apps/h8/gstreamer/imx6/depth_estimation -> f68d1846abf13c95fdc796427b88c427
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/general/media/instance_segmentation.mp4 -> apps/h8/gstreamer/imx6/depth_estimation -> 45314001c6f05c7cc5bdcccd6db484a1
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx6/media/classification_480_480.mp4 -> apps/h8/gstreamer/imx6/classification -> 19f978b83d5015ce90b7ee1b31de72a9
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/general/hefs/resnet_v1_50.hef -> apps/h8/gstreamer/imx6/classification -> 2d714096dee563e6e47c42e52165ede8
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/general/hefs/ssd_mobilenet_v1.hef -> apps/h8/gstreamer/imx6/detection -> ea7300d99570e7db39b8e1aa0de3d4d2
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/general/media/multi_stream/detection0.mp4 -> apps/h8/gstreamer/imx6/detection -> 37cb5ececa15492b5627935e6b9037d6
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/general/hefs/yolov5s_personface_rgba.hef -> apps/h8/gstreamer/imx6/detection -> 8a3bed08714628dd7a3e9c1d0bf57bdb
+

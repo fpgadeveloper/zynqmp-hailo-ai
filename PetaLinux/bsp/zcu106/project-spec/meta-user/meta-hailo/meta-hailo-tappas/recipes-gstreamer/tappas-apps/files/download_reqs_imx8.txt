@@ -1,0 +1,12 @@
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx8/hefs/yolov5m_yuv.hef -> apps/h8/gstreamer/imx8/detection -> 41eeee848844f65634d0873188b08ce1
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx8/hefs/yolov5m_vehicles_no_ddr_yuy2.hef -> apps/h8/gstreamer/imx8/license_plate_recognition -> 64a6d26d172f671c2bfd2aa2d1840389
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx8/hefs/tiny_yolov4_license_plates_yuy2.hef -> apps/h8/gstreamer/imx8/license_plate_recognition -> dfb49b07250f9e2ea03add746faaa35b
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx8/hefs/lprnet_yuy2.hef -> apps/h8/gstreamer/imx8/license_plate_recognition -> 409fd97b76d72aed32733090e35d1a4b
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx8/media/lpr.raw -> apps/h8/gstreamer/imx8/license_plate_recognition -> 5f2217b90b4bb4e405f7323038840786
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/general/hefs/yolov5s_personface_nv12_no_ddr.hef -> apps/h8/gstreamer/imx8/multistream_detection -> f865d432feddf7a5aa35734092c42717
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx8/media/multistream_detection_h265/detection0.mp4 -> apps/h8/gstreamer/imx8/multistream_detection -> 1bcc3ff8e9340d27be080c56d9baff67
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx8/media/multistream_detection_h265/detection1.mp4 -> apps/h8/gstreamer/imx8/multistream_detection -> 39bd1a803e3b229593aeec48bede6c89
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx8/media/multistream_detection_h265/detection2.mp4 -> apps/h8/gstreamer/imx8/multistream_detection -> 23db3d4453746da78ed06e5e285a3398
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx8/media/multistream_detection_h265/detection3.mp4 -> apps/h8/gstreamer/imx8/multistream_detection -> d4bdc5b3737776098017edac2834403e
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx8/media/multistream_detection_h265/detection4.mp4 -> apps/h8/gstreamer/imx8/multistream_detection -> 57234ea865a45b331cbe965e458fe944
+https://hailo-tappas.s3.eu-west-2.amazonaws.com/v3.25/imx8/media/multistream_detection_h265/detection5.mp4 -> apps/h8/gstreamer/imx8/multistream_detection -> 155c2d1ce92d0412f977fb0eb7965243

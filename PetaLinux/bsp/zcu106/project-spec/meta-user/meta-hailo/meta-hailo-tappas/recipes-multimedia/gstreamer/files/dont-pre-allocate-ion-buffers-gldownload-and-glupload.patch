@@ -1,0 +1,47 @@
+Subject: [PATCH] Don't pre-allocate any ion buffers in dmabuf pool (gldownload and glupload)
+
+Destcription:
+gldownload requests 3 ION buffers to be created in the pool without any upper bound.
+This is an issue when working with larger buffers as we can easily
+run out of CMA memory. The cost of allocating an ION buffer when
+needed is negligible.
+
+===================================================================
+
+diff --git a/ext/gl/gstgldownloadelement.c b/ext/gl/gstgldownloadelement.c
+index 8e27adf22..7d99ca6f1 100644
+--- a/ext/gl/gstgldownloadelement.c
++++ b/ext/gl/gstgldownloadelement.c
+@@ -571,8 +571,8 @@ gst_gl_download_element_propose_allocation (GstBaseTransform * bt,
+ 
+   GST_DEBUG_OBJECT (download, "create pool %p", pool);
+ 
+-  //propose 3 buffers for better performance
+-  gst_query_add_allocation_pool (query, pool, size, 3, 0);
++  /* propose up to 3 buffers with no minimum to save memory */
++  gst_query_add_allocation_pool (query, pool, size, 0, 3);
+ 
+   gst_object_unref (pool);
+ 
+diff --git a/gst-libs/gst/gl/gstglupload.c b/gst-libs/gst/gl/gstglupload.c
+index 606e9c780..40369e529 100644
+--- a/gst-libs/gst/gl/gstglupload.c
++++ b/gst-libs/gst/gl/gstglupload.c
+@@ -892,7 +892,7 @@ _dma_buf_upload_propose_allocation (gpointer impl, GstQuery * decide_query,
+   if (!_dma_buf_upload_setup_buffer_pool (&pool, allocator, caps, &info))
+     goto setup_failed;
+ 
+-  gst_query_set_nth_allocation_pool (query, 0, pool, info.size, 1, 30);
++  gst_query_set_nth_allocation_pool (query, 0, pool, info.size, 0, 30);
+ 
+   if (pool)
+     gst_object_unref (pool);
+@@ -1875,7 +1875,7 @@ _directviv_upload_propose_allocation (gpointer impl, GstQuery * decide_query,
+   if (!_directviv_upload_setup_buffer_pool (&pool, allocator, caps, &info))
+     goto setup_failed;
+ 
+-  gst_query_set_nth_allocation_pool (query, 0, pool, info.size, 1, 30);
++  gst_query_set_nth_allocation_pool (query, 0, pool, info.size, 0, 30);
+ 
+   if (pool)
+     gst_object_unref (pool);
