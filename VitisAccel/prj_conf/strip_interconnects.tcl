@@ -55,5 +55,5 @@ if {$axi_ic_vcu_dec ne ""} {
 	set_property -dict [list CONFIG.S00_HAS_DATA_FIFO {0} CONFIG.S01_HAS_DATA_FIFO {0}] $axi_ic_vcu_dec
 }
 
-set_property -dict [list CONFIG.S00_HAS_DATA_FIFO {0} CONFIG.S01_HAS_DATA_FIFO {0}] [get_bd_cells axi_ic_zynq_ultra_ps_e_0_S_AXI_HP3_FPD]
+set_property -dict [list CONFIG.S00_HAS_DATA_FIFO {0} CONFIG.S01_HAS_DATA_FIFO {0}] [get_bd_cells axi_ic_zynq_ultra_ps_e_0_S_AXI_HPC1_FPD]
 

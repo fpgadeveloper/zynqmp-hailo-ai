@@ -21,7 +21,7 @@ freqHz=300000000:v_multi_scaler_1.ap_clk
 
 [connectivity]
 
-sp=v_multi_scaler_1.m_axi_mm_video:HP3
+sp=v_multi_scaler_1.m_axi_mm_video:HPC1
 
 [advanced]
 misc=:solution_name=link

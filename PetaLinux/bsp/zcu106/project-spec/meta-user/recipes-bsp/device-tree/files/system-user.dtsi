@@ -2,6 +2,22 @@
 / {
 };
 
+&zynqmp_dpsub {
+    status = "okay";
+    clocks = <&dp_aclk>, <&zynqmp_clk 17>, <&zynqmp_clk 16>, <&display_pipeline_clk_wiz_0 0>;
+    clock-names = "dp_apb_clk", "dp_aud_clk",
+                    "dp_vtc_pixel_clk_in",
+                    "dp_live_video_in_clk";
+    xlnx,bridge = <&display_pipeline_v_tc_0>;
+
+    dp_port: port@0 {
+        reg = <0>;
+        dp_encoder: endpoint {
+            remote-endpoint = <&mixer_crtc>;
+        };
+    };
+};
+
 &amba_pl {
 	imx219_clk: imx219_clk {
 		#clock-cells = <0x0>;
@@ -68,7 +84,7 @@
 		compatible = "xlnx,zocl";
 		status = "okay";
 		interrupt-parent = <&gic>;
-		interrupts = <0 108  4>, <0 109  4>, <0 110  4>, <0 111  4>;
+		interrupts = <0 110  4>, <0 111  4>;
 	};
 };
 
@@ -259,7 +275,7 @@
 &mipi_0_isppipeline {
 	compatible = "xlnx,ISPPipeline_accel";
 	reset-gpios = <&gpio 86 1>;
-	xlnx,max-height = <1080>;
+	xlnx,max-height = <1232>;
 	xlnx,max-width = <1920>;
 	xlnx,rgain = <128>;
 	xlnx,bgain = <210>;
@@ -291,7 +307,7 @@
 &mipi_1_isppipeline {
 	compatible = "xlnx,ISPPipeline_accel";
 	reset-gpios = <&gpio 94 1>;
-	xlnx,max-height = <1080>;
+	xlnx,max-height = <1232>;
 	xlnx,max-width = <1920>;
 	xlnx,rgain = <128>;
 	xlnx,bgain = <210>;
@@ -323,7 +339,7 @@
 &mipi_2_isppipeline {
 	compatible = "xlnx,ISPPipeline_accel";
 	reset-gpios = <&gpio 102 1>;
-	xlnx,max-height = <1080>;
+	xlnx,max-height = <1232>;
 	xlnx,max-width = <1920>;
 	xlnx,rgain = <128>;
 	xlnx,bgain = <210>;
@@ -355,7 +371,7 @@
 &mipi_3_isppipeline {
 	compatible = "xlnx,ISPPipeline_accel";
 	reset-gpios = <&gpio 110 1>;
-	xlnx,max-height = <1080>;
+	xlnx,max-height = <1232>;
 	xlnx,max-width = <1920>;
 	xlnx,rgain = <128>;
 	xlnx,bgain = <210>;
@@ -384,7 +400,6 @@
 	};
 };
 
-
 &mipi_0_v_proc {
 	compatible = "xlnx,v-vpss-scaler-2.2";
 };
@@ -399,6 +414,30 @@
 
 &mipi_3_v_proc {
 	compatible = "xlnx,v-vpss-scaler-2.2";
+};
+
+&display_pipeline_clk_wiz_0 {
+	#address-cells = <2>;
+};
+
+&crtc_mixer_portdisplay_pipeline_v_mix_0 {
+	mixer_crtc: endpoint@0 {
+		reg = <0>;
+		remote-endpoint = <&dp_encoder>;
+	};
+};
+
+&xx_mix_masterdisplay_pipeline_v_mix_0 {
+	xlnx,vformat = "NV16";
+};
+
+&display_pipeline_v_mix_0 {
+	xlnx,disp-bridge = <&zynqmp_dpsub>;
+};
+
+&display_pipeline_v_tc_0 {
+	compatible = "xlnx,bridge-v-tc-6.1";
+	xlnx,pixels-per-clock = <1>;
 };
 
 &scaler_port0mipi_0_v_proc {

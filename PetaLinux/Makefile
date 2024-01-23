@@ -50,6 +50,11 @@ PETL_COMP_DIR = $(PETL_DIR)/components
 PETL_OFFLINE = $(PETL_ROOT)/offline.txt
 PETL_LOCK = $(PETL_ROOT)/.$(TARGET).lock
 
+# Hailo recipes
+SUBMOD_PATH = $(PETL_ROOT)/../submodules
+HAILO_RECIPES = $(SUBMOD_PATH)/meta-hailo
+HAILO_PATCH = $(SUBMOD_PATH)/meta-hailo.patch
+
 # These macros return values from the valid target lists defined above
 define get_template_name
 $(word 1,$($(1)_target))
@@ -155,6 +160,8 @@ $(PETL_BUILD_DEPS): $(PETL_CFG_DONE)
 $(PETL_CFG_DONE): | $(PETL_COMP_DIR)
 	cp -R ./bsp/$(TARGET_BOARD)/project-spec ./$(TARGET)/.
 	-cp -R ./bsp/$(TARGET)/project-spec ./$(TARGET)/.
+	-cp -R $(HAILO_RECIPES) ./$(TARGET)/project-spec/meta-user/.
+	cd $(TARGET)/project-spec/meta-user/meta-hailo && patch -s -p1 < $(HAILO_PATCH)
 	@if [ ! -z "$(SSTATE_PATH)" ]; then \
 		echo '$(MIRROR_URL)' >> ./$(TARGET)/project-spec/configs/config; \
 		echo '$(SSTATE_FEEDS)' >> ./$(TARGET)/project-spec/configs/config; \

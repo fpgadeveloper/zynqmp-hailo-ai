@@ -4167,6 +4167,25 @@ CONFIG_xilinx-isppipeline=y
 
 CONFIG_ADD_USERS_TO_GROUPS="petalinux:audio,video,disk,kmem;"
 
+# Tools for FPGA Drive FMC
+
+CONFIG_e2fsprogs=y
+CONFIG_e2fsprogs-mke2fs=y
+CONFIG_e2fsprogs-badblocks=y
+CONFIG_mtd-utils=y
+CONFIG_util-linux=y
+CONFIG_util-linux-mount=y
+CONFIG_util-linux-mkfs=y
+CONFIG_util-linux-blkid=y
+CONFIG_util-linux-fdisk=y
+CONFIG_pciutils=y
+CONFIG_bridge-utils=y
+
+# Add coreutils for full version of dd, and nvme-cli for NVMe tools
+
+CONFIG_coreutils=y
+CONFIG_nvme-cli=y
+
 # For dnf
 CONFIG_imagefeature-package-management=y
 CONFIG_package-feed-uris=""
