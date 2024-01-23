@@ -1,0 +1,60 @@
+diff --git a/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.14.0.bb b/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.14.0.bb
+index 84f1519..82b3ce9 100644
+--- a/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.14.0.bb
++++ b/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.14.0.bb
+@@ -14,6 +14,9 @@ inherit hailort-base
+ OECMAKE_TARGET_COMPILE = "libhailort"
+ HAILORT_INCLUDE_STAGING_DIR = "${D}${includedir}/hailort"
+ 
++do_configure[network]="1"
++do_compile[network]="1"
++
+ do_install:append() {
+   install -d ${D}${libdir}
+   install -m 0755 ${LIB_SRC_DIR}/libhailort.so.${PV} ${D}${libdir}
+diff --git a/meta-hailo-libhailort/recipes-hailo/pyhailort-shared/pyhailort-shared_4.14.0.bb b/meta-hailo-libhailort/recipes-hailo/pyhailort-shared/pyhailort-shared_4.14.0.bb
+index 104649c..d078472 100644
+--- a/meta-hailo-libhailort/recipes-hailo/pyhailort-shared/pyhailort-shared_4.14.0.bb
++++ b/meta-hailo-libhailort/recipes-hailo/pyhailort-shared/pyhailort-shared_4.14.0.bb
+@@ -13,6 +13,9 @@ S = "${WORKDIR}/git"
+ # python configuration class - exports PYTHON_LIBRARY and PYTHON_INCLUDE_DIR (mandatory for compilation)
+ inherit hailort-base python3native
+ 
++do_configure[network]="1"
++do_compile[network]="1"
++
+ # pyhailort build depends on protobuf, git, python3 and pybind11
+ DEPENDS = "protobuf python3 git-native python3-pybind11"
+ RDEPENDS:${PN} += "libhailort"
+diff --git a/meta-hailo-libhailort/recipes-hailo/pyhailort/pyhailort_4.14.0.bb b/meta-hailo-libhailort/recipes-hailo/pyhailort/pyhailort_4.14.0.bb
+index 1880d94..12dcd29 100644
+--- a/meta-hailo-libhailort/recipes-hailo/pyhailort/pyhailort_4.14.0.bb
++++ b/meta-hailo-libhailort/recipes-hailo/pyhailort/pyhailort_4.14.0.bb
+@@ -16,6 +16,9 @@ DEPENDS = "python3 pyhailort-shared python3-wheel-native"
+ 
+ inherit setuptools3
+ 
++do_configure[network]="1"
++do_compile[network]="1"
++
+ RDEPENDS:${PN} += "libhailort python3-future python3-importlib-metadata python3-netifaces \
+ 				   python3-appdirs python3-configparser python3-contextlib2 python3-netaddr \
+ 				   python3-argcomplete python3-verboselogs python3-numpy python3-setuptools"
+diff --git a/meta-hailo-tappas/recipes-multimedia/gstreamer/gstreamer1.0-plugins-base_%.imx.bbappend b/meta-hailo-tappas/recipes-multimedia/gstreamer/gstreamer1.0-plugins-base_%.imx.bbappend
+index 0002df5..e6a0894 100644
+--- a/meta-hailo-tappas/recipes-multimedia/gstreamer/gstreamer1.0-plugins-base_%.imx.bbappend
++++ b/meta-hailo-tappas/recipes-multimedia/gstreamer/gstreamer1.0-plugins-base_%.imx.bbappend
+@@ -1,6 +1,9 @@
+ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
+ 
++#SRC_URI += " \
++#    file://allocate-cached-ion-buffer.patch \
++#    file://dont-pre-allocate-ion-buffers-gldownload-and-glupload.patch \
++#    "
++
+ SRC_URI += " \
+-    file://allocate-cached-ion-buffer.patch \
+-    file://dont-pre-allocate-ion-buffers-gldownload-and-glupload.patch \
+-    "
+\ No newline at end of file
++    "

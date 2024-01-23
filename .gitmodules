@@ -1,3 +1,6 @@
 [submodule "submodules/Vitis_Libraries"]
 	path = submodules/Vitis_Libraries
 	url = https://github.com/Xilinx/Vitis_Libraries.git
+[submodule "submodules/meta-hailo"]
+	path = submodules/meta-hailo
+	url = https://github.com/hailo-ai/meta-hailo
