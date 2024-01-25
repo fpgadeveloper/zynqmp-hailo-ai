@@ -61,7 +61,7 @@ OUT_FORMAT=YUY2
 DISP_RES_W=2560
 DISP_RES_H=1440
 # Frame rate (fps)
-FRM_RATE=10
+FRM_RATE=25
 
 # Find all the media devices
 media_devices=($(ls /dev/media*))
@@ -126,13 +126,18 @@ for media in "${!media_to_video_mapping[@]}"; do
         echo " - ${media_to_cam_interface[$media]}: $media = ${media_to_video_mapping[$media]}"
 done
 
-# Run GStreamer to combine 4 videos and display on the screen
 
+#-------------------------------------------------------------------------------
+# MAIN
+#-------------------------------------------------------------------------------
 
 init_variables $@
 
-#parse_args $@
 
+# Setup the split-display pipeline
+echo | modetest -M xlnx -D a0100000.v_mix -s 52@40:${DISP_RES_W}x${DISP_RES_H}@NV16
+
+# Build each pipeline with an output for a different sub-display area
 
 PIPELINE_00="\
     v4l2src device=/dev/video0 io-mode=dmabuf-import stride-align=256 do-timestamp=true ! \
@@ -142,58 +147,42 @@ PIPELINE_00="\
     hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
     queue leaky=2 max-size-buffers=10  ! \
     hailooverlay ! \
-    queue leaky=2 max-size-buffers=10 max-size-bytes=0 max-size-time=0 "
+    kmssink bus-id=a0100000.v_mix plane-id=34 render-rectangle=\"<0,0,${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
 
 PIPELINE_01="\
     v4l2src device=/dev/video1 io-mode=dmabuf-import stride-align=256 do-timestamp=true ! \
     video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=${OUT_FORMAT}, framerate=${FRM_RATE}/1 ! \
     hailonet hef-path=$hef_path scheduling-algorithm=1 batch-size=1 vdevice-key=1 ! \
-    queue leaky=2 max-size-buffers=3 max-size-bytes=0 max-size-time=0 ! \
+    queue leaky=2 max-size-buffers=3 ! \
     hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
-    queue leaky=2 max-size-buffers=10 max-size-bytes=0 max-size-time=0 ! \
+    queue leaky=2 max-size-buffers=10  ! \
     hailooverlay ! \
-    queue leaky=2 max-size-buffers=10 max-size-bytes=0 max-size-time=0 "
+    kmssink bus-id=a0100000.v_mix plane-id=35 render-rectangle=\"<${OUT_RES_W},0,${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
 
 PIPELINE_02="\
     v4l2src device=/dev/video2 io-mode=dmabuf-import stride-align=256 do-timestamp=true ! \
     video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=${OUT_FORMAT}, framerate=${FRM_RATE}/1 ! \
     hailonet hef-path=$hef_path scheduling-algorithm=1 batch-size=1 vdevice-key=1 ! \
-    queue leaky=2 max-size-buffers=3 max-size-bytes=0 max-size-time=0 ! \
+    queue leaky=2 max-size-buffers=3 ! \
     hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
-    queue leaky=2 max-size-buffers=10 max-size-bytes=0 max-size-time=0 ! \
+    queue leaky=2 max-size-buffers=10  ! \
     hailooverlay ! \
-    queue leaky=2 max-size-buffers=10 max-size-bytes=0 max-size-time=0 "
+    kmssink bus-id=a0100000.v_mix plane-id=36 render-rectangle=\"<0,${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
 
 PIPELINE_03="\
     v4l2src device=/dev/video3 io-mode=dmabuf-import stride-align=256 do-timestamp=true ! \
     video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=${OUT_FORMAT}, framerate=${FRM_RATE}/1 ! \
     hailonet hef-path=$hef_path scheduling-algorithm=1 batch-size=1 vdevice-key=1 ! \
-    queue leaky=2 max-size-buffers=3 max-size-bytes=0 max-size-time=0 ! \
+    queue leaky=2 max-size-buffers=3 ! \
     hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
-    queue leaky=2 max-size-buffers=10 max-size-bytes=0 max-size-time=0 ! \
+    queue leaky=2 max-size-buffers=10  ! \
     hailooverlay ! \
-    queue leaky=2 max-size-buffers=10 max-size-bytes=0 max-size-time=0 "
+    kmssink bus-id=a0100000.v_mix plane-id=37 render-rectangle=\"<${OUT_RES_W},${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
 
-
-# v4l2src device=/dev/video0 io-mode=dmabuf-import stride-align=256 do-timestamp=true \
-#! video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=${OUT_FORMAT}, framerate=${FRM_RATE}/1 \
 
 
 gst-launch-1.0 -v \
 ${PIPELINE_00} \
-! comp.sink_0 \
-vvas_xcompositor xclbin-location=/run/media/mmcblk0p1/dpu.xclbin \
- sink_0::xpos=0     sink_0::ypos=0 \
- sink_1::xpos=${OUT_RES_W}   sink_1::ypos=0 \
- sink_2::xpos=0     sink_2::ypos=${OUT_RES_H} \
- sink_3::xpos=${OUT_RES_W}   sink_3::ypos=${OUT_RES_H} \
-name=comp \
-! video/x-raw , width=${DISP_RES_W}, height=${DISP_RES_H} , format=NV12 \
-! queue leaky=1 max-size-buffers=3 \
-! kmssink plane-id=39 fullscreen-overlay=true sync=false \
 ${PIPELINE_01} \
-! comp.sink_1 \
 ${PIPELINE_02} \
-! comp.sink_2 \
-${PIPELINE_03} \
-! comp.sink_3
+${PIPELINE_03}
