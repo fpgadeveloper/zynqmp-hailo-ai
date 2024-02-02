@@ -1022,7 +1022,7 @@ proc create_display_pipeline { } {
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_ctrl_vmix
 
   # Create pins
-  create_bd_pin -dir I -from 91 -to 0 Din
+  create_bd_pin -dir I -from 91 -to 0 emio_gpio
   create_bd_pin -dir I -type clk clk
   create_bd_pin -dir I -type rst ext_reset_in
   create_bd_pin -dir O -type intr irq_v_tc
@@ -1142,22 +1142,33 @@ proc create_display_pipeline { } {
    CONFIG.NUM_PORTS {4} \
  ] $xlconcat_0
 
-  # Create instance: xlconstant_0, and set properties
-  set xlconstant_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant xlconstant_0 ]
+  # Create instance: const_low_24, and set properties
+  set const_low_24 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_low_24 ]
   set_property -dict [ list \
    CONFIG.CONST_VAL {0} \
    CONFIG.CONST_WIDTH {24} \
- ] $xlconstant_0
+ ] $const_low_24
 
-  # Create instance: xlconstant_1, and set properties
-  set xlconstant_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant xlconstant_1 ]
+  # Create instance: const_high, and set properties
+  set const_high [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_high ]
+  set_property -dict [ list \
+   CONFIG.CONST_VAL {1} \
+   CONFIG.CONST_WIDTH {1} \
+ ] $const_high
 
-  # Create instance: xlconstant_2, and set properties
-  set xlconstant_2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant xlconstant_2 ]
+  # Create instance: const_low_16, and set properties
+  set const_low_16 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_low_16 ]
   set_property -dict [ list \
    CONFIG.CONST_VAL {0} \
    CONFIG.CONST_WIDTH {16} \
- ] $xlconstant_2
+ ] $const_low_16
+
+  # Create instance: const_low_4, and set properties
+  set const_low_4 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_low_4 ]
+  set_property -dict [ list \
+   CONFIG.CONST_VAL {0} \
+   CONFIG.CONST_WIDTH {4} \
+ ] $const_low_4
 
   # Create instance: reset_vmix, and set properties
   set reset_vmix [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice reset_vmix ]
@@ -1201,7 +1212,7 @@ proc create_display_pipeline { } {
   connect_bd_intf_net -intf_net v_tc_0_vtiming_out [get_bd_intf_pins v_axi4s_vid_out_0/vtiming_in] [get_bd_intf_pins v_tc_0/vtiming_out]
 
   # Create port connections
-  connect_bd_net -net Din_1 [get_bd_pins Din] [get_bd_pins reset_vmix/Din]
+  connect_bd_net -net emio_gpio_1 [get_bd_pins emio_gpio] [get_bd_pins reset_vmix/Din]
   connect_bd_net -net clk_1 [get_bd_pins clk] [get_bd_pins axi_interconnect_0/ACLK] -boundary_type upper
   connect_bd_net -net clk_1 [get_bd_pins clk] [get_bd_pins axi_interconnect_0/M00_ACLK] -boundary_type upper
   connect_bd_net -net clk_1 [get_bd_pins clk] [get_bd_pins axi_interconnect_0/S00_ACLK] -boundary_type upper
@@ -1244,14 +1255,14 @@ proc create_display_pipeline { } {
   connect_bd_net -net v_mix_0_interrupt [get_bd_pins irq_vmix] [get_bd_pins v_mix_0/interrupt]
   connect_bd_net -net v_tc_0_irq [get_bd_pins irq_v_tc] [get_bd_pins v_tc_0/irq]
   connect_bd_net -net xlconcat_0_dout [get_bd_pins vid_data] [get_bd_pins xlconcat_0/dout]
-  connect_bd_net -net xlconstant_0_dout [get_bd_pins v_mix_0/s_axis_video_TDATA] [get_bd_pins v_mix_0/s_axis_video_TVALID] -boundary_type upper
-  connect_bd_net -net xlconstant_0_dout [get_bd_pins v_mix_0/s_axis_video_TDATA] [get_bd_pins xlconstant_0/dout] -boundary_type upper
-  connect_bd_net -net xlconstant_1_dout [get_bd_pins v_axi4s_vid_out_0/aclken] [get_bd_pins v_axi4s_vid_out_0/vid_io_out_ce] -boundary_type upper
-  connect_bd_net -net xlconstant_1_dout [get_bd_pins v_axi4s_vid_out_0/aclken] [get_bd_pins v_tc_0/clken] -boundary_type upper
-  connect_bd_net -net xlconstant_1_dout [get_bd_pins v_axi4s_vid_out_0/aclken] [get_bd_pins v_tc_0/s_axi_aclken] -boundary_type upper
-  connect_bd_net -net xlconstant_1_dout [get_bd_pins v_axi4s_vid_out_0/aclken] [get_bd_pins xlconstant_1/dout] -boundary_type upper
-  connect_bd_net -net xlconstant_2_dout [get_bd_pins xlconcat_0/In0] [get_bd_pins xlconcat_0/In2] -boundary_type upper
-  connect_bd_net -net xlconstant_2_dout [get_bd_pins xlconcat_0/In0] [get_bd_pins xlconstant_2/dout] -boundary_type upper
+  connect_bd_net -net const_low_24_dout [get_bd_pins v_mix_0/s_axis_video_TDATA] [get_bd_pins v_mix_0/s_axis_video_TVALID] -boundary_type upper
+  connect_bd_net -net const_low_24_dout [get_bd_pins v_mix_0/s_axis_video_TDATA] [get_bd_pins const_low_24/dout] -boundary_type upper
+  connect_bd_net -net const_high_dout [get_bd_pins v_axi4s_vid_out_0/aclken] [get_bd_pins v_axi4s_vid_out_0/vid_io_out_ce] -boundary_type upper
+  connect_bd_net -net const_high_dout [get_bd_pins v_axi4s_vid_out_0/aclken] [get_bd_pins v_tc_0/clken] -boundary_type upper
+  connect_bd_net -net const_high_dout [get_bd_pins v_axi4s_vid_out_0/aclken] [get_bd_pins v_tc_0/s_axi_aclken] -boundary_type upper
+  connect_bd_net -net const_high_dout [get_bd_pins v_axi4s_vid_out_0/aclken] [get_bd_pins const_high/dout] -boundary_type upper
+  connect_bd_net -net const_low_16_dout [get_bd_pins const_low_16/dout] [get_bd_pins xlconcat_0/In0] -boundary_type upper
+  connect_bd_net -net const_low_4_dout [get_bd_pins const_low_4/dout] [get_bd_pins xlconcat_0/In2] -boundary_type upper
   connect_bd_net -net reset_vmix_Dout [get_bd_pins v_mix_0/ap_rst_n] [get_bd_pins reset_vmix/Dout]
   connect_bd_net -net xlslice_15to8_Dout [get_bd_pins xlconcat_0/In3] [get_bd_pins xlslice_15to8/Dout]
   connect_bd_net -net xlslice_7to0_Dout [get_bd_pins xlconcat_0/In1] [get_bd_pins xlslice_7to0/Dout]
@@ -1272,7 +1283,7 @@ lappend hpm0_lpd_ports [list "display_pipeline/s_axi_ctrl_v_tc" "clk_wiz_0/clk_1
 lappend hpm0_fpd_ports [list "display_pipeline/s_axi_ctrl_vmix" "clk_wiz_0/clk_250M" "rst_video_250M/peripheral_aresetn"]
 
 # Connect EMIO GPIO
-connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_gpio_o] [get_bd_pins display_pipeline/Din]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/emio_gpio_o] [get_bd_pins display_pipeline/emio_gpio]
 
 # Clock and reset
 connect_bd_net [get_bd_pins clk_wiz_0/clk_250M] [get_bd_pins display_pipeline/clk]

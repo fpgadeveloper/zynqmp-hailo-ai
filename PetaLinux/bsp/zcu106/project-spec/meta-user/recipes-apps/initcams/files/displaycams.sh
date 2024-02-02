@@ -107,15 +107,15 @@ echo | modetest -M xlnx -D a0100000.v_mix -s 52@40:${DISP_RES_W}x${DISP_RES_H}@N
 # Run GStreamer to combine 4 videos and display on the screen
 
 gst-launch-1.0 v4l2src device=/dev/video0 io-mode=mmap stride-align=256 \
-! video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=YUY2, framerate=30/1 \
+! video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=YUY2, framerate=${FRM_RATE}/1 \
 ! kmssink bus-id=a0100000.v_mix plane-id=34 render-rectangle="<0,0,${OUT_RES_W},${OUT_RES_H}>" show-preroll-frame=false sync=false can-scale=false \
 v4l2src device=/dev/video1 io-mode=mmap stride-align=256 \
-! video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=YUY2, framerate=30/1 \
+! video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=YUY2, framerate=${FRM_RATE}/1 \
 ! kmssink bus-id=a0100000.v_mix plane-id=35 render-rectangle="<${OUT_RES_W},0,${OUT_RES_W},${OUT_RES_H}>" show-preroll-frame=false sync=false can-scale=false \
 v4l2src device=/dev/video2 io-mode=mmap stride-align=256 \
-! video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=YUY2, framerate=30/1 \
+! video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=YUY2, framerate=${FRM_RATE}/1 \
 ! kmssink bus-id=a0100000.v_mix plane-id=36 render-rectangle="<0,${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>" show-preroll-frame=false sync=false can-scale=false \
 v4l2src device=/dev/video3 io-mode=mmap stride-align=256 \
-! video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=YUY2, framerate=30/1 \
+! video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=YUY2, framerate=${FRM_RATE}/1 \
 ! kmssink bus-id=a0100000.v_mix plane-id=37 render-rectangle="<${OUT_RES_W},${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>" show-preroll-frame=false sync=false can-scale=false
 
