@@ -34,11 +34,12 @@ if {![string equal $ver $version_required]} {
 set_param board.repoPaths [get_property LOCAL_ROOT_DIR [xhub::get_xstores xilinx_board_store]]
 
 # Possible targets
-dict set target_dict zcu104 { xilinx.com zcu104 { 0 1 2 3 } "" zynqmp 1 }
-dict set target_dict zcu106_hpc0 { xilinx.com zcu106 { 0 1 2 3 } hpc1 zynqmp 1 }
-dict set target_dict pynqzu { tul.com.tw pynqzu { 0 1 2 3 } "" zynqmp 0 }
-dict set target_dict genesyszu { digilentinc.com gzu_5ev { 0 1 2 3 } "" zynqmp 1 }
-dict set target_dict uzev { avnet.com ultrazed_7ev_cc { 0 1 2 3 } "" zynqmp 1 }
+dict set target_dict zcu104 { xilinx.com zcu104 { 0 1 2 3 } "" zynqmp 1 { X1 } }
+dict set target_dict zcu106_hpc0 { xilinx.com zcu106 { 0 1 2 3 } hpc0 zynqmp 1 { X4 X4 } }
+dict set target_dict zcu106 { xilinx.com zcu106 { 0 1 2 3 } hpc1 zynqmp 1 { X1 } }
+dict set target_dict pynqzu { tul.com.tw pynqzu { 1 2 } "" zynqmp 0 { X1 } }
+dict set target_dict genesyszu { digilentinc.com gzu_5ev { 1 2 } "" zynqmp 1 { X1 } }
+dict set target_dict uzev { avnet.com ultrazed_7ev_cc { 0 1 2 3 } "" zynqmp 1 { X4 X4 } }
 
 # Function to display the options and get user input
 proc selectTarget {target_dict} {
@@ -125,6 +126,7 @@ set cams [lindex [dict get $target_dict $target] 2]
 set pcie_fmc [lindex [dict get $target_dict $target] 3]
 set bd_script [lindex [dict get $target_dict $target] 4]
 set has_vcu [lindex [dict get $target_dict $target] 5]
+set num_lanes [lindex [dict get $target_dict $target] 6]
 
 # Set the reference directory for source file relative paths (by default the value is script directory path)
 set origin_dir "."

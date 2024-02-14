@@ -8,6 +8,7 @@ Vivado/uzev/
 Vivado/zcu102_hpc0/
 Vivado/zcu102_hpc1/
 Vivado/zcu104/
+Vivado/zcu106/
 Vivado/zcu106_hpc0/
 Vivado/zcu106_pcie/
 Vitis/.*/
@@ -21,6 +22,7 @@ PetaLinux/uzev/
 PetaLinux/zcu102_hpc0/
 PetaLinux/zcu102_hpc1/
 PetaLinux/zcu104/
+PetaLinux/zcu106/
 PetaLinux/zcu106_hpc0/
 PetaLinux/zcu106_pcie/
 docs/build/

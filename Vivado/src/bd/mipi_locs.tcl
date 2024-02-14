@@ -68,6 +68,22 @@ dict set mipi_loc_dict zcu106_hpc0 3 bank 68
 dict set mipi_loc_dict zcu106_hpc0 3 clk { pin F7 pin_name IO_L7P_T1L_N0_QBC_AD13P_68 }
 dict set mipi_loc_dict zcu106_hpc0 3 data0 { pin C9 pin_name IO_L8P_T1L_N2_AD5P_68 }
 dict set mipi_loc_dict zcu106_hpc0 3 data1 { pin M13 pin_name IO_L1P_T0L_N0_DBC_68 }
+dict set mipi_loc_dict zcu106 0 bank 67
+dict set mipi_loc_dict zcu106 0 clk { pin F17 pin_name IO_L13P_T2L_N0_GC_QBC_67 }
+dict set mipi_loc_dict zcu106 0 data0 { pin H19 pin_name IO_L15P_T2L_N4_AD11P_67 }
+dict set mipi_loc_dict zcu106 0 data1 { pin L20 pin_name IO_L19P_T3L_N0_DBC_AD9P_67 }
+dict set mipi_loc_dict zcu106 1 bank 67
+dict set mipi_loc_dict zcu106 1 clk { pin H18 pin_name IO_L16P_T2U_N6_QBC_AD3P_67 }
+dict set mipi_loc_dict zcu106 1 data0 { pin D16 pin_name IO_L7P_T1L_N0_QBC_AD13P_67 }
+dict set mipi_loc_dict zcu106 1 data1 { pin C13 pin_name IO_L6P_T0U_N10_AD6P_67 }
+dict set mipi_loc_dict zcu106 2 bank 68
+dict set mipi_loc_dict zcu106 2 clk { pin D11 pin_name IO_L16P_T2U_N6_QBC_AD3P_68 }
+dict set mipi_loc_dict zcu106 2 data0 { pin B6 pin_name IO_L21P_T3L_N4_AD8P_68 }
+dict set mipi_loc_dict zcu106 2 data1 { pin F11 pin_name IO_L14P_T2L_N2_GC_68 }
+dict set mipi_loc_dict zcu106 3 bank 68
+dict set mipi_loc_dict zcu106 3 clk { pin F7 pin_name IO_L7P_T1L_N0_QBC_AD13P_68 }
+dict set mipi_loc_dict zcu106 3 data0 { pin C9 pin_name IO_L8P_T1L_N2_AD5P_68 }
+dict set mipi_loc_dict zcu106 3 data1 { pin M13 pin_name IO_L1P_T0L_N0_DBC_68 }
 dict set mipi_loc_dict uzev 0 bank 64
 dict set mipi_loc_dict uzev 0 clk { pin AF16 pin_name IO_L13P_T2L_N0_GC_QBC_64 }
 dict set mipi_loc_dict uzev 0 data0 { pin AC17 pin_name IO_L17P_T2U_N8_AD10P_64 }

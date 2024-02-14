@@ -24,6 +24,7 @@ zcu104_target := 0
 zcu102_hpc0_target := 0
 zcu102_hpc1_target := 0
 zcu106_hpc0_target := 0
+zcu106_target := 0
 pynqzu_target := 0
 genesyszu_target := 0
 uzev_target := 0

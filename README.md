@@ -1,23 +1,21 @@
-# Reference design combining the Zynq UltraScale+ with the Hailo AI accelerator
-
-## UNDER DEVELOPMENT
-
-This project is still in development and undergoing major changes. The only target design that is currently in a 
-buildable state is the `zcu106_hpc0` design. All other designs are early stages and waiting on a new hardware
-adapter that we are currently designing.
+# Multi-camera YOLOv5 on the Zynq UltraScale+ and Hailo-8 AI accelerator
 
 ## Description
 
-This project demonstrates the combined power of the Zynq UltraScale+ and the Hailo AI accelerator
+This project demonstrates the combined power of the Zynq UltraScale+ and the Hailo-8 AI accelerator
 when used in multi-camera vision applications. The repo contains designs for several Zynq UltraScale+
 development boards and connects to 4x Raspberry Pi cameras via the Opsero 
-[RPi Camera FMC](https://camerafmc.com/docs/rpi-camera-fmc/overview/). The Hailo AI accelerator
-connects to the development board via the [FPGA Drive FMC Gen4](https://www.fpgadrive.com/docs/fpga-drive-fmc-gen4/overview/).
+[RPi Camera FMC](https://camerafmc.com/docs/rpi-camera-fmc/overview/). The Hailo-8 AI accelerator
+connects to the development board via the [FPGA Drive FMC Gen4](https://www.fpgadrive.com/docs/fpga-drive-fmc-gen4/overview/)
+or the [M.2 M-key Stack FMC](https://www.fpgadrive.com/docs/m2-mkey-stack-fmc/overview/) depending on the target
+design.
 
 ![RPi Camera FMC](https://www.fpgadeveloper.com/camera-fmc-connecting-mipi-cameras-to-fpgas/images/rpi-camera-fmc-pynq-zu-1.jpg "RPi Camera FMC")
 
 Important links:
 * The RPi Camera FMC [datasheet](https://camerafmc.com/docs/rpi-camera-fmc/overview/)
+* The FPGA Drive FMC Gen4 [datasheet](https://www.fpgadrive.com/docs/fpga-drive-fmc-gen4/overview/)
+* The M.2 M-key Stack FMC [datasheet](https://www.fpgadrive.com/docs/m2-mkey-stack-fmc/overview/)
 * To [report an issue](https://github.com/fpgadeveloper/zynqmp-hailo-ai/issues)
 * For technical support: [Contact Opsero](https://opsero.com/contact-us)
 
@@ -33,13 +31,14 @@ In order to test this design on hardware, you will need the following:
 * Vivado 2022.1
 * Vitis 2022.1
 * PetaLinux Tools 2022.1
-* One [Hailo-8 M.2 AI Acceleration Module](https://hailo.ai/products/ai-accelerators/hailo-8-m2-ai-acceleration-module/)
-* One or more [Raspberry Pi Camera Module 2](https://www.raspberrypi.com/products/camera-module-v2/) and/or 
-  [Digilent Pcam 5C](https://digilent.com/shop/pcam-5c-5-mp-fixed-focus-color-camera-module/) cameras
-* One [RPi Camera FMC](https://camerafmc.com/buy/ "RPi Camera FMC")
-* One [FPGA Drive FMC Gen4](https://fpgadrive.com/buy/ "FPGA Drive FMC Gen4")
-* One DisplayPort monitor that supports 2560 x 1440 resolution video
-* One of the supported target boards listed below
+* 1x [Hailo-8 M.2 AI Acceleration Module](https://hailo.ai/products/ai-accelerators/hailo-8-m2-ai-acceleration-module/)
+* 4x [Raspberry Pi Camera Module 2](https://www.raspberrypi.com/products/camera-module-v2/)
+* 1x [RPi Camera FMC](https://camerafmc.com/buy/ "RPi Camera FMC")
+* 1x [FPGA Drive FMC Gen4](https://fpgadrive.com/buy/ "FPGA Drive FMC Gen4") (for `zcu106` target design)
+* 1x [M.2 M-key Stack FMC](https://fpgadrive.com/buy/ "M.2 M-key Stack FMC") (for all other designs)
+* 1x DisplayPort monitor that supports 2560 x 1440 resolution video
+* Alternatively, 1x HDMI monitor that supports 2560 x 1440 resolution and DP-to-HDMI adapter
+* 1x of the supported target boards listed below
 
 ### Target boards
 
@@ -89,9 +88,7 @@ Thank you to everyone who supports us!
 
 ### The TODO list
 
-* Add Hailo required packages
-* Add PCIe constraints to all designs
-* Test all designs on hardware
+* Test all M.2 M-key Stack FMC based designs on hardware
 
 ## About us
 

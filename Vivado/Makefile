@@ -15,11 +15,12 @@ TARGET ?= none
 JOBS ?= 8
 
 # valid targets
-zcu104_target := xilinx.com zcu104
-zcu106_hpc0_target := xilinx.com zcu106
-pynqzu_target := tul.com.tw pynqzu
-genesyszu_target := digilentinc.com gzu_5ev
-uzev_target := avnet.com ultrazed_7ev_cc
+zcu104_target := xilinx.com zcu104 accel
+zcu106_hpc0_target := xilinx.com zcu106 accel
+zcu106_target := xilinx.com zcu106 accel
+pynqzu_target := tul.com.tw pynqzu no_accel
+genesyszu_target := digilentinc.com gzu_5ev no_accel
+uzev_target := avnet.com ultrazed_7ev_cc accel
 
 TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
 
@@ -43,8 +44,17 @@ VIV_XSA_JOU = $(TARGET)_xsa.jou
 VIV_BIT = $(VIV_DIR)/$(TARGET).runs/impl_1/$(BD_NAME)_wrapper.bit
 VIV_LOCK = $(ROOT_DIR)/.$(TARGET).lock
 
+# These macros return values from the valid target lists defined above
+define get_has_accel
+$(word 3,$($(1)_target))
+endef
+
 # Targets with accelerators don't need to run implementation, only synth
-SYNTH_ONLY = 1
+ifeq ($(call get_has_accel,$(TARGET)), accel)
+	SYNTH_ONLY = 1
+else
+	SYNTH_ONLY = 0
+endif
 
 .PHONY: help
 help:

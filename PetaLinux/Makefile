@@ -12,10 +12,11 @@ TARGET ?= none
 JOBS ?= 8
 
 # valid targets (template name, flash size, flash interface)
-zcu104_target := zynqMP 0 0
-zcu106_hpc0_target := zynqMP 0 0
-pynqzu_target := zynqMP 0 0
-uzev_target := zynqMP 0 0
+zcu104_target := zynqMP 0 0 accel
+zcu106_hpc0_target := zynqMP 0 0 accel
+zcu106_target := zynqMP 0 0 accel
+pynqzu_target := zynqMP 0 0 no_accel
+uzev_target := zynqMP 0 0 accel
 
 TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
 
@@ -68,6 +69,10 @@ define get_flash_intf
 $(word 3,$($(1)_target))
 endef
 
+define get_has_accel
+$(word 4,$($(1)_target))
+endef
+
 # For offline PetaLinux builds
 SSTATE_PATH ?= $(shell test -e $(PETL_OFFLINE) && head -n 1 $(PETL_OFFLINE))
 
@@ -88,8 +93,13 @@ else ifeq ($(call get_template_name,$(TARGET)), zynqMP)
 	PKG_CMD = petalinux-package --boot --fsbl ./images/linux/zynqmp_fsbl.elf --fpga $(VIV_BIT) --u-boot
 endif
 
-VIV_BIT = $(VIT_ACC_DIR)/$(TARGET)_container/link/int/system.bit
-MAKE_BIT_CMD = $(MAKE) -C $(VIT_ACC_DIR) xclbin TARGET=$(TARGET) JOBS=$(JOBS)
+ifeq ($(call get_has_accel,$(TARGET)), accel)
+	VIV_BIT = $(VIT_ACC_DIR)/$(TARGET)_container/link/int/system.bit
+	MAKE_BIT_CMD = $(MAKE) -C $(VIT_ACC_DIR) xclbin TARGET=$(TARGET) JOBS=$(JOBS)
+else
+	VIV_BIT = $(VIV_PRJ_DIR)/$(TARGET).runs/impl_1/$(BD_NAME)_wrapper.bit
+	MAKE_BIT_CMD = @echo 'Vivado failed to generate the bitstream'
+endif
 
 ifneq ($(SSTATE_PATH),)
 	MIRROR_URL = CONFIG_PRE_MIRROR_URL="file://$(SSTATE_PATH)/downloads"
@@ -146,7 +156,7 @@ $(PKG_PRODUCTS): $(BUILD_PRODUCTS) $(VIV_BIT)
 	@echo 'Packaging PetaLinux project for $(TARGET)'
 	cd $(TARGET) && $(PKG_CMD)
 	
-# Generate bitstream
+# Generate bitstream (should already be done unless target uses an accelerator)
 $(VIV_BIT): 
 	$(MAKE_BIT_CMD)
 

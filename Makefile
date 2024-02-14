@@ -1,10 +1,11 @@
-# Opsero Electronic Design Inc. 2023
+# Opsero Electronic Design Inc. 2024
 #
 # This Makefile can be used to build all projects and gather the boot images.
 
 RM = rm -rf
 ROOT_DIR = $(shell pwd)
 BD_NAME = rpi
+PRJ_NAME = zynqmp-hailo-ai
 
 # defaults
 .DEFAULT_GOAL := bootimage
@@ -14,8 +15,8 @@ JOBS ?= 8
 # valid targets (template name)
 zcu104_target := zynqMP
 zcu106_hpc0_target := zynqMP
+zcu106_target := zynqMP
 pynqzu_target := zynqMP
-genesyszu_target := zynqMP
 uzev_target := zynqMP
 
 TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
@@ -48,7 +49,7 @@ VIT_BOOT_TARG = $(VIT_BOOT)/$(TARGET)
 # outputs
 BOOTIMAGE_DIR = $(ROOT_DIR)/bootimages
 TEMPBOOT_DIR = $(BOOTIMAGE_DIR)/$(BD_NAME)_$(TARGET)
-PETL_ZIP = $(BOOTIMAGE_DIR)/$(BD_NAME)_$(TARGET)_petalinux-2022-1.zip
+PETL_ZIP = $(BOOTIMAGE_DIR)/$(PRJ_NAME)_$(TARGET)_petalinux-2022-1.zip
 BOOTIMAGE_LOCK = $(ROOT_DIR)/.$(TARGET).lock
 
 # These macros return values from the valid target lists defined above
