@@ -23,19 +23,29 @@ This repo contains several designs that target the various supported development
 FMC connectors. The table below lists the target design name, the camera ports supported by the design and 
 the FMC connector on which to connect the RPi Camera FMC.
 
-| Target board             | Target design | FMC slot | Cameras | M.2 adapter for Hailo | M.2 active slots |
+Note that there are two target designs for the [ZCU106][5] board: `zcu106` and `zcu106_hpc0`, and the
+differences are explained in the table below.
+All target designs except `zcu106` require the [M.2 M-key Stack FMC][2] as the M.2 adapter for the Hailo-8, with the
+[RPi Camera FMC][3] stacked on top of it.
+
+| Target board             | Target design | FMC slots used | Cameras | M.2 adapter for Hailo | M.2 active slots |
 |--------------------------|---------------|----------|---------|-------------|------------------|
 | [ZCU104][4]              | `zcu104`      | LPC       | 4 | [M.2 M-key Stack FMC][2] | 1 |
-| [ZCU106][5]              | `zcu106`      | HPC0+HPC1 | 4 | [FPGA Drive FMC Gen4][1] | 1 |
-| [ZCU106][5]              | `zcu106_hpc0` | HPC0      | 4 | [M.2 M-key Stack FMC][2] | 2 |
-| [PYNQ-ZU][6]             | `pynqzu`      | LPC       | 2 | [M.2 M-key Stack FMC][2] | 1 |
-| [Genesys-ZU][7]          | `genesyszu`   | LPC       | 2 | [M.2 M-key Stack FMC][2] | 1 |
-| [UltraZed EV carrier][8] | `uzev`        | HPC       | 4 | [M.2 M-key Stack FMC][2] | 2 |
+| [ZCU106][5]              | `zcu106`      | HPC0+HPC1 (note 1) | 4 | [FPGA Drive FMC Gen4][1] | 1 |
+| [ZCU106][5]              | `zcu106_hpc0` | HPC0      | 4 | [M.2 M-key Stack FMC][2] | 2 (note 3) |
+| [PYNQ-ZU][6]             | `pynqzu`      | LPC       | 2 (note 2) | [M.2 M-key Stack FMC][2] | 1 |
+| [Genesys-ZU][7]          | `genesyszu`   | LPC       | 2 (note 2) | [M.2 M-key Stack FMC][2] | 1 |
+| [UltraZed EV carrier][8] | `uzev`        | HPC       | 4 | [M.2 M-key Stack FMC][2] | 2 (note 3) |
 
-The `zcu106` design is unique in that it is the only design that uses two FMC slots and requires the 
-[FPGA Drive FMC Gen4] as the M.2 adapter for the Hailo-8 module.
-In this design, the [FPGA Drive FMC Gen4] is placed on the HPC1 connector while the [RPi Camera FMC] 
-is placed on the HPC0 connector.
+#### Notes:
+1. The `zcu106` target design uses the [FPGA Drive FMC Gen4][1] as the M.2 adapter for the Hailo-8.
+   In that design, the [FPGA Drive FMC Gen4][1] connects to HPC1 while the [RPi Camera FMC][3] connects
+   to the HPC0 connector.
+2. The `pynqzu` and `genesyszu` target designs have video pipelines for only 2 cameras (CAM1 and CAM2 as
+   labelled on the RPi Camera FMC). This is due to the resource limitations of the devices on these boards.
+3. The `zcu106_hpc0` and `uzev` target designs have support for 2x M.2 modules. To use the Hailo demo scripts,
+   at least one of these modules must be the [Hailo-8 M.2 AI Acceleration Module]. The second slot can be used
+   for a second Hailo module, or an NVMe SSD for storage.
 
 ## Linux only
 
