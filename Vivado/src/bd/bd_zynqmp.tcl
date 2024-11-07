@@ -73,12 +73,12 @@ set display_rst rst_video_250M
 if {$board_name == "zcu104"} {
   set select_quad_0 "GTH_Quad_226"
   set pcie_blk_locn_0 "X0Y0"
-} elseif {$board_name == "zcu106" && $pcie_fmc == "hpc0"} {
+} elseif {$target == "zcu106_hpc0"} {
   set select_quad_0 "GTH_Quad_226"
   set select_quad_1 "GTH_Quad_227"
   set pcie_blk_locn_0 "X0Y1"
   set pcie_blk_locn_1 "X0Y0"
-} elseif {$board_name == "zcu106" && $pcie_fmc == "hpc1"} {
+} elseif {$target == "zcu106" } {
   set select_quad_0 "GTH_Quad_223"
   set pcie_blk_locn_0 "X0Y0"
 } elseif {$board_name == "pynqzu"} {

@@ -11,14 +11,14 @@ GET_PART_LOG = vivado_$(TARGET).log
 GET_PART_JOU = vivado_$(TARGET).jou
 
 # valid targets
+# UPDATER START
 zcu104_target := xilinx.com zcu104
-zcu102_hpc0_target := xilinx.com zcu102
-zcu102_hpc1_target := xilinx.com zcu102
-zcu106_hpc0_target := xilinx.com zcu106
 zcu106_target := xilinx.com zcu106
+zcu106_hpc0_target := xilinx.com zcu106
 pynqzu_target := tul.com.tw pynqzu
 genesyszu_target := digilentinc.com gzu_5ev
 uzev_target := avnet.com ultrazed_7ev_cc
+# UPDATER END
 
 TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
 

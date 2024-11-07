@@ -1,4 +1,4 @@
-# Opsero Electronic Design Inc. 2023
+# Opsero Electronic Design Inc. 2024
 #
 # This Makefile builds the PL kernels and links them into the hw platform.
 
@@ -17,10 +17,12 @@ TARGET ?= none
 JOBS ?= 8
 
 # valid targets
+# UPDATER START
 zcu104_target := 0
-zcu106_hpc0_target := 0
 zcu106_target := 0
+zcu106_hpc0_target := 0
 uzev_target := 0
+# UPDATER END
 
 TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
 

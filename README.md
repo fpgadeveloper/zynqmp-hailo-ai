@@ -30,9 +30,9 @@ to find the version of this repository that matches your version of the tools.
 
 In order to test this design on hardware, you will need the following:
 
-* Vivado 2022.1
-* Vitis 2022.1
-* PetaLinux Tools 2022.1
+* Vivado 2024.1
+* Vitis 2024.1
+* PetaLinux Tools 2024.1
 * 1x [Hailo-8 M.2 AI Acceleration Module]
 * 4x [Raspberry Pi Camera Module 2](https://www.raspberrypi.com/products/camera-module-v2/)
 * 1x [RPi Camera FMC][3]
@@ -49,20 +49,28 @@ differences are explained in the table below.
 All target designs except `zcu106` require the [M.2 M-key Stack FMC][2] as the M.2 adapter for the Hailo-8, with the
 [RPi Camera FMC][3] stacked on top of it.
 
-| Target board             | Target design | FMC slots used | Cameras | M.2 adapter for Hailo | M.2 active slots |
-|--------------------------|---------------|----------|---------|-------------|------------------|
-| [ZCU104][4]              | `zcu104`      | LPC       | 4 | [M.2 M-key Stack FMC][2] | 1 |
-| [ZCU106][5]              | `zcu106`      | HPC0+HPC1 (note 1) | 4 | [FPGA Drive FMC Gen4][1] | 1 |
-| [ZCU106][5]              | `zcu106_hpc0` | HPC0      | 4 | [M.2 M-key Stack FMC][2] | 2 (note 3) |
-| [PYNQ-ZU][6]             | `pynqzu`      | LPC       | 2 (note 2) | [M.2 M-key Stack FMC][2] | 1 |
-| [Genesys-ZU][7]          | `genesyszu`   | LPC       | 2 (note 2) | [M.2 M-key Stack FMC][2] | 1 |
-| [UltraZed EV carrier][8] | `uzev`        | HPC       | 4 | [M.2 M-key Stack FMC][2] | 2 (note 3) |
+<!-- updater start -->
+### Zynq UltraScale+ designs
+
+| Target board          | Target design   | FMC Slot(s) | Cameras | Active M.2 Slots | VCU   | Accelerator | Stack Design | Vivado<br> Edition |
+|-----------------------|-----------------|-------------|---------|------------------|-------|-------------|--------------|-------|
+| [ZCU104]              | `zcu104`        | LPC         | 4     | 1     | :white_check_mark: | :white_check_mark: | :white_check_mark: | Standard :free: |
+| [ZCU106]              | `zcu106`        | HPC0+HPC1   | 4     | 1     | :white_check_mark: | :white_check_mark: | :x:                | Standard :free: |
+| [ZCU106]              | `zcu106_hpc0`   | HPC0        | 4     | 2     | :white_check_mark: | :white_check_mark: | :white_check_mark: | Standard :free: |
+| [PYNQ-ZU]             | `pynqzu`        | LPC         | 2     | 1     | :x:                | :x:                | :white_check_mark: | Standard :free: |
+| [UltraZed-EV Carrier] | `uzev`          | HPC         | 4     | 2     | :white_check_mark: | :white_check_mark: | :white_check_mark: | Standard :free: |
+
+[ZCU104]: https://www.xilinx.com/zcu104
+[ZCU106]: https://www.xilinx.com/zcu106
+[PYNQ-ZU]: https://www.tulembedded.com/FPGA/ProductsPYNQ-ZU.html
+[UltraZed-EV Carrier]: https://www.xilinx.com/products/boards-and-kits/1-1s78dxb.html
+<!-- updater end -->
 
 #### Notes:
 1. The `zcu106` target design uses the [FPGA Drive FMC Gen4][1] as the M.2 adapter for the Hailo-8.
    In that design, the [FPGA Drive FMC Gen4][1] connects to HPC1 while the [RPi Camera FMC][3] connects
    to the HPC0 connector.
-2. The `pynqzu` and `genesyszu` target designs have video pipelines for only 2 cameras (CAM1 and CAM2 as
+2. The `pynqzu` target design has video pipelines for only 2 cameras (CAM1 and CAM2 as
    labelled on the RPi Camera FMC). This is due to the resource limitations of the devices on these boards.
 3. The `zcu106_hpc0` and `uzev` target designs have support for 2x M.2 modules. To use the Hailo demo scripts,
    at least one of these modules must be the [Hailo-8 M.2 AI Acceleration Module]. The second slot can be used
@@ -78,8 +86,8 @@ git clone --recursive https://github.com/fpgadeveloper/zynqmp-hailo-ai.git
 Source Vivado and PetaLinux tools:
 
 ```
-source <path-to-petalinux>/2022.1/settings.sh
-source <path-to-vivado>/2022.1/settings64.sh
+source <path-to-petalinux>/2024.1/settings.sh
+source <path-to-vivado>/2024.1/settings64.sh
 ```
 
 Build all (Vivado project, accelerator kernel and PetaLinux):
