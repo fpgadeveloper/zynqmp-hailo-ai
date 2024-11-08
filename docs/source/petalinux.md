@@ -28,7 +28,8 @@ users are advised to use a Linux virtual machine to build the PetaLinux projects
    source <vivado-install-dir>/settings64.sh
    ```
 4. Build the Vivado and PetaLinux project for your specific target platform by running the following
-   commands and replacing `<target>` with one of the following: `zcu104`, `zcu106`, `zcu106_hpc0`, `pynqzu`, `uzev`.
+   commands and replacing `<target>` with one of the following:
+   {% for design in data.designs if design.petalinux and design.publish %} `{{ design.label }}`{{ ", " if not loop.last else "." }} {% endfor %}
    ```
    cd PetaLinux
    make petalinux TARGET=<target>

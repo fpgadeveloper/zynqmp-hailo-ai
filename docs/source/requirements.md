@@ -13,7 +13,7 @@ In order to test this design on hardware, you will need the following:
 * 1x [M.2 M-key Stack FMC] (for all other designs)
 * One DisplayPort monitor supporting 2K (2560 x 1440) resolution
 * Alternatively: HDMI monitor supporting 2K resolution and a DP-to-HDMI adapter
-* One of the supported [target boards](supported_carriers)
+* One of the supported carrier boards listed below
 
 ## List of supported boards
 
@@ -47,7 +47,7 @@ In order to test this design on hardware, you will need the following:
 {% endif %}
 {% endfor %}
 
-For list of the target designs showing the number of M.2 slots and PCIe lanes supported, refer to the build instructions.
+For list of the target designs showing the number of cameras and M.2 slots supported, refer to the build instructions.
 
 ## Supported cameras
 

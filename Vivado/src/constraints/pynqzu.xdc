@@ -154,7 +154,7 @@ create_clock -period 10.000 -name ref_clk_0_clk_p -waveform {0.000 5.000} [get_p
 
 # MGT locations
 # M2 slot 1 LPC_DP0 (PCIe lane 0) is connected to MGT bank 224 (X0Y4-X0Y7), specifically X0Y7
-set_property LOC GTHE4_CHANNEL_X0Y7 [get_cells {*_i/xdma_0/inst/pcie4_ip_i/inst/*_gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/*_xdma_0_0_pcie4_ip_gt_i/inst/gen_gtwizard_gthe4_top.*_xdma_0_0_pcie4_ip_gt_gtwizard_gthe4_inst/gen_gtwizard_gthe4.gen_channel_container[3].gen_enabled_channel.gthe4_channel_wrapper_inst/channel_inst/gthe4_channel_gen.gen_gthe4_channel_inst[0].GTHE4_CHANNEL_PRIM_INST}]
+set_property LOC GTHE4_CHANNEL_X0Y7 [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ ADVANCED.GT.GTHE4_CHANNEL && NAME =~ "*xdma_0*channel_inst[0]*" }]
 
 # PYNQ-ZU LPC transceiver for M2 slot 1 is best aligned with PCIE_X0Y1
 set_property LOC PCIE40E4_X0Y1 [get_cells *_i/xdma_0/inst/pcie4_ip_i/inst/*_pcie_4_0_pipe_inst/pcie_4_0_e4_inst]

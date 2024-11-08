@@ -4,9 +4,9 @@
 
 This project demonstrates the combined power of the Zynq UltraScale+ and the Hailo-8 AI accelerator
 when used in multi-camera vision applications. The repo contains designs for several Zynq UltraScale+
-development boards and connects to 4x Raspberry Pi cameras via the Opsero [RPi Camera FMC][3]. 
-The Hailo-8 AI accelerator connects to the development board via the [FPGA Drive FMC Gen4][1]
-or the [M.2 M-key Stack FMC][2] depending on the target design (see list of target designs below).
+development boards and connects to 4x Raspberry Pi cameras via the Opsero [RPi Camera FMC]. 
+The Hailo-8 AI accelerator connects to the development board via the [FPGA Drive FMC Gen4]
+or the [M.2 M-key Stack FMC] depending on the target design (see list of target designs below).
 
 A detailed description of this design and how to use it was written up in this blog post:
 [Multi-camera YOLOv5 on Zynq UltraScale+ with Hailo-8 AI Acceleration](https://www.fpgadeveloper.com/multi-camera-yolov5-on-zynq-ultrascale-with-hailo-8-ai-acceleration/)
@@ -15,9 +15,9 @@ A detailed description of this design and how to use it was written up in this b
 
 Important links:
 * The [user guide](https://hailo.camerafmc.com) for these reference designs
-* The RPi Camera FMC [datasheet][3]
-* The FPGA Drive FMC Gen4 [datasheet][1] (for the `zcu106` target design only)
-* The M.2 M-key Stack FMC [datasheet][2]
+* Datasheet of the [RPi Camera FMC]
+* Datasheet of the [FPGA Drive FMC Gen4] (for the `zcu106` target design only)
+* Datasheet of the [M.2 M-key Stack FMC]
 * To [report an issue](https://github.com/fpgadeveloper/zynqmp-hailo-ai/issues)
 * For technical support: [Contact Opsero](https://opsero.com/contact-us)
 
@@ -35,19 +35,19 @@ In order to test this design on hardware, you will need the following:
 * PetaLinux Tools 2024.1
 * 1x [Hailo-8 M.2 AI Acceleration Module]
 * 4x [Raspberry Pi Camera Module 2](https://www.raspberrypi.com/products/camera-module-v2/)
-* 1x [RPi Camera FMC][3]
-* 1x [FPGA Drive FMC Gen4][1] (for `zcu106` target design)
-* 1x [M.2 M-key Stack FMC][2] (for all other designs)
+* 1x [RPi Camera FMC]
+* 1x [FPGA Drive FMC Gen4] (for `zcu106` target design)
+* 1x [M.2 M-key Stack FMC] (for all other designs)
 * 1x DisplayPort monitor that supports 2560 x 1440 resolution video
 * Alternatively, 1x HDMI monitor that supports 2560 x 1440 resolution and DP-to-HDMI adapter
 * 1x of the supported target boards listed below
 
 ## Target designs
 
-Note that there are two target designs for the [ZCU106][5] board: `zcu106` and `zcu106_hpc0`, and the
+Note that there are two target designs for the [ZCU106] board: `zcu106` and `zcu106_hpc0`, and the
 differences are explained in the table below.
-All target designs except `zcu106` require the [M.2 M-key Stack FMC][2] as the M.2 adapter for the Hailo-8, with the
-[RPi Camera FMC][3] stacked on top of it.
+All target designs except `zcu106` require the [M.2 M-key Stack FMC] as the M.2 adapter for the Hailo-8, with the
+[RPi Camera FMC] stacked on top of it.
 
 <!-- updater start -->
 ### Zynq UltraScale+ designs
@@ -67,12 +67,17 @@ All target designs except `zcu106` require the [M.2 M-key Stack FMC][2] as the M
 <!-- updater end -->
 
 #### Notes:
-1. The `zcu106` target design uses the [FPGA Drive FMC Gen4][1] as the M.2 adapter for the Hailo-8.
-   In that design, the [FPGA Drive FMC Gen4][1] connects to HPC1 while the [RPi Camera FMC][3] connects
+1. The Vivado Edition column indicates which designs are supported by the Vivado *Standard* Edition, the
+   FREE edition which can be used without a license. Vivado *Enterprise* Edition requires
+   a license however a 30-day evaluation license is available from the AMD Xilinx Licensing site.
+2. The Stack Designs use the [M.2 M-key Stack FMC] with the [RPi Camera FMC] stacked on top of it. The non-stack
+   designs use the [FPGA Drive FMC Gen4] on one FMC connector, and the [RPi Camera FMC] on another.
+3. The `zcu106` target design uses the [FPGA Drive FMC Gen4] as the M.2 adapter for the Hailo-8.
+   In that design, the [FPGA Drive FMC Gen4] connects to HPC1 while the [RPi Camera FMC] connects
    to the HPC0 connector.
-2. The `pynqzu` target design has video pipelines for only 2 cameras (CAM1 and CAM2 as
+4. The `pynqzu` target design has video pipelines for only 2 cameras (CAM1 and CAM2 as
    labelled on the RPi Camera FMC). This is due to the resource limitations of the devices on these boards.
-3. The `zcu106_hpc0` and `uzev` target designs have support for 2x M.2 modules. To use the Hailo demo scripts,
+5. The `zcu106_hpc0` and `uzev` target designs have support for 2x M.2 modules. To use the Hailo demo scripts,
    at least one of these modules must be the [Hailo-8 M.2 AI Acceleration Module]. The second slot can be used
    for a second Hailo module, or an NVMe SSD for storage.
 
@@ -120,13 +125,8 @@ design services to start-ups and tech companies. Follow our blog,
 [FPGA Developer](https://www.fpgadeveloper.com "FPGA Developer"), for news, tutorials and
 updates on the awesome projects we work on.
 
-[1]: https://www.fpgadrive.com/docs/fpga-drive-fmc-gen4/overview/
-[2]: https://www.fpgadrive.com/docs/m2-mkey-stack-fmc/overview/
-[3]: https://camerafmc.com/docs/rpi-camera-fmc/overview/
-[4]: https://www.xilinx.com/zcu104
-[5]: https://www.xilinx.com/zcu106
-[6]: https://www.tulembedded.com/FPGA/ProductsPYNQ-ZU.html
-[7]: https://digilent.com/shop/genesys-zu-zynq-ultrascale-mpsoc-development-board/
-[8]: https://www.xilinx.com/products/boards-and-kits/1-y3n9v1.html
+[FPGA Drive FMC Gen4]: https://www.fpgadrive.com/docs/fpga-drive-fmc-gen4/overview/
+[M.2 M-key Stack FMC]: https://www.fpgadrive.com/docs/m2-mkey-stack-fmc/overview/
+[RPi Camera FMC]: https://camerafmc.com/docs/rpi-camera-fmc/overview/
 [Hailo-8 M.2 AI Acceleration Module]: https://hailo.ai/products/ai-accelerators/hailo-8-m2-ai-acceleration-module/
 

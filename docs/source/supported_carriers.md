@@ -2,14 +2,35 @@
 
 ## List of supported boards
 
-| Carrier board                                              | FMC connector               |
-|------------------------------------------------------------|-----------------------------|
-| AMD Xilinx [ZCU104] Zynq UltraScale+ Evaluation board      | LPC                         |
-| AMD Xilinx [ZCU106] Zynq UltraScale+ Evaluation board      | HPC0                        |
-| TUL [PYNQ-ZU] Zynq UltraScale+ Development board           | LPC                         |
-| Digilent [Genesys-ZU] Zynq UltraScale+ Development board   | LPC                         |
-| Avnet [UltraZed EV Carrier Card] Zynq UltraScale+          | HPC                         |
- 
+{% set unique_boards = {} %}
+{% for design in data.designs %}
+    {% if design.publish %}
+        {% if design.board not in unique_boards %}
+            {% set _ = unique_boards.update({design.board: {"group": design.group, "link": design.link, "connectors": []}}) %}
+        {% endif %}
+        {% set _ = unique_boards[design.board]["connectors"].append(design.connector) %}
+    {% endif %}
+{% endfor %}
+
+{% for group in data.groups %}
+    {% set designs_in_group = [] %}
+    {% for design in data.designs %}
+        {% if design.group == group.label and design.publish %}
+            {% set _ = designs_in_group.append(design.label) %}
+        {% endif %}
+    {% endfor %}
+    {% if designs_in_group | length > 0 %}
+### {{ group.name }} boards
+
+| Carrier board       | Supported FMC connector(s)    |
+|---------------------|--------------|
+{% for name,board in unique_boards.items() %}{% if board.group == group.label %}| [{{ name }}]({{ board.link }}) | {% for connector in board.connectors %}{{ connector }} {% endfor %} |
+{% endif %}{% endfor %}
+{% endif %}
+{% endfor %}
+
+For list of the target designs showing the number of cameras supported, refer to the build instructions.
+
 ## Unlisted boards
 
 If you need more information on whether the [RPi Camera FMC] is compatible with a carrier that is not 
@@ -29,13 +50,7 @@ PYNQ-ZU and UltraZed EV carrier boards are powered at 1.8VDC. At the moment this
 functional workaround that we have found for these two target boards.
 
 
-
 [contact Opsero]: https://opsero.com/contact-us
-[UltraZed EV Carrier Card]: https://www.xilinx.com/products/boards-and-kits/1-y3n9v1.html
-[ZCU104]: https://www.xilinx.com/zcu104
-[ZCU106]: https://www.xilinx.com/zcu106
-[Genesys-ZU]: https://digilent.com/shop/genesys-zu-zynq-ultrascale-mpsoc-development-board/
-[PYNQ-ZU]: https://www.tulembedded.com/FPGA/ProductsPYNQ-ZU.html
 [RPi Camera FMC]: https://camerafmc.com/docs/rpi-camera-fmc/overview/
 [compatibility list]: https://camerafmc.com/docs/rpi-camera-fmc/compatibility/
 [AMD Xilinx MIPI CSI Controller Subsystem IP]: https://docs.xilinx.com/r/en-US/pg202-mipi-dphy

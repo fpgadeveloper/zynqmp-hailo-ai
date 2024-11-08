@@ -10,6 +10,38 @@ or the [M.2 M-key Stack FMC] depending on the target design
 A detailed description of this example design has also been written in the blog post 
 [Multi-camera YOLOv5 on Zynq UltraScale+ with Hailo-8 AI Acceleration](https://www.fpgadeveloper.com/multi-camera-yolov5-on-zynq-ultrascale-with-hailo-8-ai-acceleration/).
 
+## Hardware Platforms
+
+The hardware designs provided in this reference are based on Vivado and support a range of MPSoC evaluation
+boards. The repository contains all necessary scripts and code to build these designs for the supported platforms listed below:
+
+{% for group in data.groups %}
+    {% set designs_in_group = [] %}
+    {% for design in data.designs %}
+        {% if design.group == group.label and design.publish %}
+            {% set _ = designs_in_group.append(design.label) %}
+        {% endif %}
+    {% endfor %}
+    {% if designs_in_group | length > 0 %}
+### {{ group.name }} platforms
+
+| Target board        | FMC Slot Used | Cameras | Active M.2 Slots | VCU | Accelerator |
+|---------------------|---------------|---------|-----|-----|-----|
+{% for design in data.designs %}{% if design.group == group.label and design.publish %}| [{{ design.board }}]({{ design.link }}) | {{ design.connector }} | {{ design.cams | length }} | {{ design.lanes | length }} | {% if design.vcu %} ✅ {% else %} ❌ {% endif %} | {% if design.accel %} ✅ {% else %} ❌ {% endif %} |
+{% endif %}{% endfor %}
+{% endif %}
+{% endfor %}
+
+## Software
+
+These reference designs can be driven within a PetaLinux environment. 
+The repository includes all necessary scripts and code to build the PetaLinux environment. The table 
+below outlines the corresponding applications available in each environment:
+
+| Environment      | Available Applications  |
+|------------------|-------------------------|
+| PetaLinux        | Built-in Linux commands<br>Additional tools: ethtool, phytool, iperf3 |
+
 ## Architecture
 
 The block diagram below illustrates the design from the top level.

@@ -38,29 +38,25 @@ All target designs except `zcu106` require the [M.2 M-key Stack FMC][2] as the M
     {% if designs_in_group | length > 0 %}
 ### {{ group.name }} designs
 
-| Target board        | Target design     | M.2 Slot 1<br>PCIe Lanes  | M.2 Slot 2<br>PCIe Lanes  | FMC Slot    | Vivado<br> Edition |
-|---------------------|-------------------|---------------------------|---------------------------|-------------|-----|
-{% for design in data.designs %}{% if design.group == group.label and design.publish %}| [{{ design.board }}]({{ design.link }}) | `{{ design.label }}` | {{ design.lanes[0] }} | {{ design.lanes[1] | default("-") }} | {{ design.connector }} | {{ "Enterprise" if design.license else "Standard 🆓" }} |
+| Target board        | Target design     | Cameras | M.2 <br>Active <br>Slots | FMC Slot    | VCU | Accelerator | Stack Design | Vivado<br> Edition |
+|---------------------|-------------------|---------|------------------|-------------|-----|-----|-----|-----|
+{% for design in data.designs %}{% if design.group == group.label and design.publish %}| [{{ design.board }}]({{ design.link }}) | `{{ design.label }}` | {{ design.cams | length }} | {{ design.lanes | length }} | {{ design.connector }} | {% if design.vcu %} ✅ {% else %} ❌ {% endif %} | {% if design.accel %} ✅ {% else %} ❌ {% endif %} | {% if design.stack %} ✅ {% else %} ❌ {% endif %} | {{ "Enterprise" if design.license else "Standard 🆓" }} |
 {% endif %}{% endfor %}
 {% endif %}
 {% endfor %}
 
-| Target board             | Target design | FMC slots used | Cameras | M.2 adapter for Hailo | M.2 active slots |
-|--------------------------|---------------|----------|---------|-------------|------------------|
-| [ZCU104][4]              | `zcu104`      | LPC       | 4 | [M.2 M-key Stack FMC][2] | 1 |
-| [ZCU106][5]              | `zcu106`      | HPC0+HPC1 (note 1) | 4 | [FPGA Drive FMC Gen4][1] | 1 |
-| [ZCU106][5]              | `zcu106_hpc0` | HPC0      | 4 | [M.2 M-key Stack FMC][2] | 2 (note 3) |
-| [PYNQ-ZU][6]             | `pynqzu`      | LPC       | 2 (note 2) | [M.2 M-key Stack FMC][2] | 1 |
-| [Genesys-ZU][7]          | `genesyszu`   | LPC       | 2 (note 2) | [M.2 M-key Stack FMC][2] | 1 |
-| [UltraZed EV carrier][8] | `uzev`        | HPC       | 4 | [M.2 M-key Stack FMC][2] | 2 (note 3) |
-
 #### Notes:
-1. The `zcu106` target design uses the [FPGA Drive FMC Gen4][1] as the M.2 adapter for the Hailo-8.
-   In that design, the [FPGA Drive FMC Gen4][1] connects to HPC1 while the [RPi Camera FMC][3] connects
+1. The Vivado Edition column indicates which designs are supported by the Vivado *Standard* Edition, the
+   FREE edition which can be used without a license. Vivado *Enterprise* Edition requires
+   a license however a 30-day evaluation license is available from the AMD Xilinx Licensing site.
+2. The Stack Designs use the [M.2 M-key Stack FMC] with the [RPi Camera FMC] stacked on top of it. The non-stack
+   designs use the [FPGA Drive FMC Gen4] on one FMC connector, and the [RPi Camera FMC] on another.
+3. The `zcu106` target design uses the [FPGA Drive FMC Gen4] as the M.2 adapter for the Hailo-8.
+   In that design, the [FPGA Drive FMC Gen4] connects to HPC1 while the [RPi Camera FMC] connects
    to the HPC0 connector.
-2. The `pynqzu` and `genesyszu` target designs have video pipelines for only 2 cameras (CAM1 and CAM2 as
+4. The `pynqzu` and `genesyszu` target designs have video pipelines for only 2 cameras (CAM1 and CAM2 as
    labelled on the RPi Camera FMC). This is due to the resource limitations of the devices on these boards.
-3. The `zcu106_hpc0` and `uzev` target designs have support for 2x M.2 modules. To use the Hailo demo scripts,
+5. The `zcu106_hpc0` and `uzev` target designs have support for 2x M.2 modules. To use the Hailo demo scripts,
    at least one of these modules must be the [Hailo-8 M.2 AI Acceleration Module]. The second slot can be used
    for a second Hailo module, or an NVMe SSD for storage.
 
@@ -90,7 +86,8 @@ to build the Vivado and PetaLinux projects with a single command.
    ```
    make project TARGET=<target>
    ```
-   Valid targets are: `zcu104`, `zcu106`, `zcu106_hpc0`, `pynqzu`, `genesyszu` and `uzev`.
+   Valid target labels are:
+   {% for design in data.designs if design.publish %} `{{ design.label }}`{{ ", " if not loop.last else "." }} {% endfor %}
    That will create the Vivado project and block design without generating a bitstream or exporting to XSA.
 4. Open the generated project in the Vivado GUI and click **Generate Bitstream**. Once the build is
    complete, select **File->Export->Export Hardware** and be sure to tick **Include bitstream** and use
@@ -160,9 +157,6 @@ follow these instructions.
 Now when you use `make` to build the PetaLinux projects, they will be configured for offline build.
 
 [supported Linux distributions]: https://docs.amd.com/r/en-US/ug1144-petalinux-tools-reference-guide/Setting-Up-Your-Environment
-[FPGA Drive FMC Gen4]: https://fpgadrive.com
-[1]: https://www.fpgadrive.com/docs/fpga-drive-fmc-gen4/overview/
-[2]: https://www.fpgadrive.com/docs/m2-mkey-stack-fmc/overview/
-[3]: https://camerafmc.com/docs/rpi-camera-fmc/overview/
-
-
+[M.2 M-key Stack FMC]: https://www.fpgadrive.com/docs/m2-mkey-stack-fmc/overview/
+[FPGA Drive FMC Gen4]: https://www.fpgadrive.com/docs/fpga-drive-fmc-gen4/overview/
+[RPi Camera FMC]: https://camerafmc.com/docs/rpi-camera-fmc/overview/
