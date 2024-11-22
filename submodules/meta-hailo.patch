@@ -1,60 +1,83 @@
-diff --git a/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.14.0.bb b/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.14.0.bb
-index 84f1519..82b3ce9 100644
---- a/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.14.0.bb
-+++ b/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.14.0.bb
-@@ -14,6 +14,9 @@ inherit hailort-base
- OECMAKE_TARGET_COMPILE = "libhailort"
- HAILORT_INCLUDE_STAGING_DIR = "${D}${includedir}/hailort"
+diff --git a/meta-hailo-accelerator/conf/layer.conf b/meta-hailo-accelerator/conf/layer.conf
+index a74232f..050cf90 100644
+--- a/meta-hailo-accelerator/conf/layer.conf
++++ b/meta-hailo-accelerator/conf/layer.conf
+@@ -10,4 +10,4 @@ BBFILE_PATTERN_meta-hailo-accelerator = "^${LAYERDIR}/"
+ BBFILE_PRIORITY_meta-hailo-accelerator = "8"
  
-+do_configure[network]="1"
-+do_compile[network]="1"
-+
- do_install:append() {
-   install -d ${D}${libdir}
-   install -m 0755 ${LIB_SRC_DIR}/libhailort.so.${PV} ${D}${libdir}
-diff --git a/meta-hailo-libhailort/recipes-hailo/pyhailort-shared/pyhailort-shared_4.14.0.bb b/meta-hailo-libhailort/recipes-hailo/pyhailort-shared/pyhailort-shared_4.14.0.bb
-index 104649c..d078472 100644
---- a/meta-hailo-libhailort/recipes-hailo/pyhailort-shared/pyhailort-shared_4.14.0.bb
-+++ b/meta-hailo-libhailort/recipes-hailo/pyhailort-shared/pyhailort-shared_4.14.0.bb
-@@ -13,6 +13,9 @@ S = "${WORKDIR}/git"
- # python configuration class - exports PYTHON_LIBRARY and PYTHON_INCLUDE_DIR (mandatory for compilation)
- inherit hailort-base python3native
+ LAYERDEPENDS_meta-hailo-accelerator = "core"
+-LAYERSERIES_COMPAT_meta-hailo-accelerator = "kirkstone"
++LAYERSERIES_COMPAT_meta-hailo-accelerator = "kirkstone langdale"
+diff --git a/meta-hailo-libhailort/conf/layer.conf b/meta-hailo-libhailort/conf/layer.conf
+index e9e0ceb..801ad18 100644
+--- a/meta-hailo-libhailort/conf/layer.conf
++++ b/meta-hailo-libhailort/conf/layer.conf
+@@ -10,4 +10,4 @@ BBFILE_PATTERN_meta-hailo-libhailort = "^${LAYERDIR}/"
+ BBFILE_PRIORITY_meta-hailo-libhailort = "8"
  
-+do_configure[network]="1"
-+do_compile[network]="1"
-+
- # pyhailort build depends on protobuf, git, python3 and pybind11
- DEPENDS = "protobuf python3 git-native python3-pybind11"
- RDEPENDS:${PN} += "libhailort"
-diff --git a/meta-hailo-libhailort/recipes-hailo/pyhailort/pyhailort_4.14.0.bb b/meta-hailo-libhailort/recipes-hailo/pyhailort/pyhailort_4.14.0.bb
-index 1880d94..12dcd29 100644
---- a/meta-hailo-libhailort/recipes-hailo/pyhailort/pyhailort_4.14.0.bb
-+++ b/meta-hailo-libhailort/recipes-hailo/pyhailort/pyhailort_4.14.0.bb
-@@ -16,6 +16,9 @@ DEPENDS = "python3 pyhailort-shared python3-wheel-native"
+ LAYERDEPENDS_meta-hailo-libhailort = "core"
+-LAYERSERIES_COMPAT_meta-hailo-libhailort = "kirkstone"
++LAYERSERIES_COMPAT_meta-hailo-libhailort = "kirkstone langdale"
+diff --git a/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.19.0.bb b/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.19.0.bb
+index f7bac01..0c2f65a 100644
+--- a/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.19.0.bb
++++ b/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.19.0.bb
+@@ -25,7 +25,7 @@ do_install:append() {
  
- inherit setuptools3
+   install -d ${HAILORT_EXPORT_DIR}
+   install -m 0644 ${WORKDIR}/build/hailort/libhailort/src/*.cmake ${HAILORT_EXPORT_DIR}
+-  install -m 0644 ${WORKDIR}/build/hailort/libhailort/src/CMakeFiles/Export/lib/cmake/HailoRT/*.cmake ${HAILORT_EXPORT_DIR}
++  install -m 0644 ${WORKDIR}/build/hailort/libhailort/src/CMakeFiles/Export/*/*.cmake ${HAILORT_EXPORT_DIR}
  
-+do_configure[network]="1"
-+do_compile[network]="1"
-+
- RDEPENDS:${PN} += "libhailort python3-future python3-importlib-metadata python3-netifaces \
- 				   python3-appdirs python3-configparser python3-contextlib2 python3-netaddr \
- 				   python3-argcomplete python3-verboselogs python3-numpy python3-setuptools"
-diff --git a/meta-hailo-tappas/recipes-multimedia/gstreamer/gstreamer1.0-plugins-base_%.imx.bbappend b/meta-hailo-tappas/recipes-multimedia/gstreamer/gstreamer1.0-plugins-base_%.imx.bbappend
-index 0002df5..e6a0894 100644
---- a/meta-hailo-tappas/recipes-multimedia/gstreamer/gstreamer1.0-plugins-base_%.imx.bbappend
-+++ b/meta-hailo-tappas/recipes-multimedia/gstreamer/gstreamer1.0-plugins-base_%.imx.bbappend
-@@ -1,6 +1,9 @@
- FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
+ }
  
-+#SRC_URI += " \
-+#    file://allocate-cached-ion-buffer.patch \
-+#    file://dont-pre-allocate-ion-buffers-gldownload-and-glupload.patch \
-+#    "
-+
- SRC_URI += " \
--    file://allocate-cached-ion-buffer.patch \
--    file://dont-pre-allocate-ion-buffers-gldownload-and-glupload.patch \
--    "
-\ No newline at end of file
-+    "
+diff --git a/meta-hailo-tappas/conf/layer.conf b/meta-hailo-tappas/conf/layer.conf
+index 8e8f46b..602d801 100644
+--- a/meta-hailo-tappas/conf/layer.conf
++++ b/meta-hailo-tappas/conf/layer.conf
+@@ -12,6 +12,6 @@ BBFILE_PRIORITY_meta-hailo-tappas = "8"
+ LICENSE_PATH = "${LAYERDIR}/licenses/"
+ 
+ LAYERDEPENDS_meta-hailo-tappas = "core meta-hailo-libhailort"
+-LAYERSERIES_COMPAT_meta-hailo-tappas = "kirkstone"
++LAYERSERIES_COMPAT_meta-hailo-tappas = "kirkstone langdale"
+ 
+ CORE_IMAGE_EXTRA_INSTALL:append = " packagegroup-hailo-tappas${@bb.utils.contains('HAILO_TARGET', 'core-image-hailo', '', '-dev-pkg', d)}"
+diff --git a/meta-hailo-tappas/recipes-gstreamer/tappas-apps/tappas-apps_3.30.0.bb b/meta-hailo-tappas/recipes-gstreamer/tappas-apps/tappas-apps_3.30.0.bb
+index 964e1d5..ac054a4 100644
+--- a/meta-hailo-tappas/recipes-gstreamer/tappas-apps/tappas-apps_3.30.0.bb
++++ b/meta-hailo-tappas/recipes-gstreamer/tappas-apps/tappas-apps_3.30.0.bb
+@@ -28,25 +28,25 @@ ROOTFS_APPS_DIR = "${D}/home/root/apps"
+ 
+ APPS_DIR_PREFIX = "${WORKDIR}/git/apps/"
+ IMX8_DIR = "${APPS_DIR_PREFIX}/h8/gstreamer/imx8/"
+-HAILO15_DIR = "${APPS_DIR_PREFIX}/h15/gstreamer/"
++#HAILO15_DIR = "${APPS_DIR_PREFIX}/h15/gstreamer/"
+ 
+ REQS_PATH = "${FILE_DIRNAME}/files/"
+ REQS_IMX8_FILE = "${REQS_PATH}download_reqs_imx8.txt"
+-REQS_HAILO15_FILE = "${REQS_PATH}download_reqs_hailo15.txt"
++#REQS_HAILO15_FILE = "${REQS_PATH}download_reqs_hailo15.txt"
+ 
+ REQS_FILE = ""
+ ARM_APPS_DIR = ""
+ python () {
+-    if 'imx8' in d.getVar('MACHINE'):
++    #if 'imx8' in d.getVar('MACHINE'):
+         d.setVar('REQS_FILE', d.getVar('REQS_IMX8_FILE'))
+         d.setVar('ARM_APPS_DIR', d.getVar('IMX8_DIR'))
+-    else:
+-        d.setVar('REQS_FILE', d.getVar('REQS_HAILO15_FILE'))
+-        d.setVar('ARM_APPS_DIR', d.getVar('HAILO15_DIR'))
+-        d.appendVar('DEPENDS', " libmedialib-api xtensor")
++    #else:
++    #    d.setVar('REQS_FILE', d.getVar('REQS_HAILO15_FILE'))
++    #    d.setVar('ARM_APPS_DIR', d.getVar('HAILO15_DIR'))
++    #    d.appendVar('DEPENDS', " libmedialib-api xtensor")
+ }
+ 
+-IS_H15 = "${@ 'true' if 'hailo15' in d.getVar('MACHINE') else 'false'}"
++#IS_H15 = "${@ 'true' if 'hailo15' in d.getVar('MACHINE') else 'false'}"
+ INSTALL_LPR = "true"
+ 
+ CURRENT_APP_NAME = ""

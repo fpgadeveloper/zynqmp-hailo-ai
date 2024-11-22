@@ -24,7 +24,7 @@ cd build/$board_name
 
 open_project -reset $PROJ
 
-add_files "${VITIS_LIBS}/L1/examples/isppipeline/xf_isp_accel.cpp" -cflags " -I ${INCLUDE_PATH} -I${VITIS_LIBS}/L1/include -I ./ -D__SDSVHLS__ -std=c++0x" -csimflags " -I ${INCLUDE_PATH} -I${VITIS_LIBS}/L1/include -I ./ -D__SDSVHLS__ -std=c++0x"
+add_files "${VITIS_LIBS}/L1/examples/isppipeline/xf_isp_accel.cpp ${VITIS_LIBS}/L1/examples/isppipeline/xf_isp_types.h" -cflags "-I${VITIS_LIBS}/L1/include -I ${INCLUDE_PATH} -I ./ -D__SDSVHLS__ -std=c++0x" -csimflags "-I${VITIS_LIBS}/L1/include -I ${INCLUDE_PATH} -I ./ -D__SDSVHLS__ -std=c++0x"
 set_top ISPPipeline_accel
 
 open_solution -reset $SOLN

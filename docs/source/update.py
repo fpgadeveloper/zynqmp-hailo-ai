@@ -245,10 +245,10 @@ vivado_ip_makefile = '../../Vivado/ip/Makefile'
 vivado_ip_targets = get_vivado_ip_targets(data)
 update_file(vivado_ip_makefile,vivado_ip_targets)
 
-# Update the Vitis Accel makefile
-vitis_accel_makefile = '../../VitisAccel/Makefile'
-vitis_accel_targets = get_vitis_accel_targets(data)
-update_file(vitis_accel_makefile,vitis_accel_targets)
+## Update the Vitis Accel makefile
+#vitis_accel_makefile = '../../VitisAccel/Makefile'
+#vitis_accel_targets = get_vitis_accel_targets(data)
+#update_file(vitis_accel_makefile,vitis_accel_targets)
 
 ## Update the Vitis makefile
 #vitis_makefile = '../../Vitis/Makefile'

@@ -208,6 +208,10 @@ proc create_mipi_pipe { index loc_dict } {
   CONFIG.NUM_MI {3} \
   ] $axi_int_video
   
+  # Add the AXI4 Streaming Data FIFO
+  set axis_data_fifo [create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo axis_data_fifo]
+  set_property CONFIG.FIFO_DEPTH {4096} $axis_data_fifo
+
   # Add the ISPPipeline
   set isppipeline [ create_bd_cell -type ip -vlnv xilinx.com:hls:ISPPipeline_accel:1.0 isppipeline ]
 
@@ -282,7 +286,7 @@ proc create_mipi_pipe { index loc_dict } {
   
   # Add and configure AXI GPIO
   set axi_gpio [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio axi_gpio_0]
-  set_property -dict [list CONFIG.C_GPIO_WIDTH {2} CONFIG.C_ALL_OUTPUTS {1}] $axi_gpio
+  set_property -dict [list CONFIG.C_GPIO_WIDTH {2} CONFIG.C_ALL_OUTPUTS {1} CONFIG.C_DOUT_DEFAULT {0x00000001} ] $axi_gpio
   
   # Connect the 200M D-PHY clock
   connect_bd_net [get_bd_pins dphy_clk_200M] [get_bd_pins mipi_csi2_rx_subsyst_0/dphy_clk_200M]
@@ -291,6 +295,7 @@ proc create_mipi_pipe { index loc_dict } {
   connect_bd_net [get_bd_pins video_aclk] [get_bd_pins v_frmbuf_wr/ap_clk]
   connect_bd_net [get_bd_pins video_aclk] [get_bd_pins v_proc/aclk_axis]
   connect_bd_net [get_bd_pins video_aclk] [get_bd_pins v_proc/aclk_ctrl]
+  connect_bd_net [get_bd_pins video_aclk] [get_bd_pins axis_data_fifo/s_axis_aclk]
   connect_bd_net [get_bd_pins video_aclk] [get_bd_pins isppipeline/ap_clk]
   connect_bd_net [get_bd_pins video_aclk] [get_bd_pins axi_int_video/ACLK]
   connect_bd_net [get_bd_pins video_aclk] [get_bd_pins axi_int_video/S00_ACLK]
@@ -313,6 +318,7 @@ proc create_mipi_pipe { index loc_dict } {
   connect_bd_net [get_bd_pins video_aresetn] [get_bd_pins axi_int_video/M01_ARESETN] -boundary_type upper
   connect_bd_net [get_bd_pins video_aresetn] [get_bd_pins axi_int_video/M02_ARESETN] -boundary_type upper
   connect_bd_net [get_bd_pins video_aresetn] [get_bd_pins mipi_csi2_rx_subsyst_0/video_aresetn]
+  connect_bd_net [get_bd_pins video_aresetn] [get_bd_pins axis_data_fifo/s_axis_aresetn]
   # Connect the AXI-Lite resets
   connect_bd_net [get_bd_pins aresetn] [get_bd_pins axi_int_ctrl/ARESETN] -boundary_type upper
   connect_bd_net [get_bd_pins aresetn] [get_bd_pins axi_int_ctrl/S00_ARESETN] -boundary_type upper
@@ -333,7 +339,8 @@ proc create_mipi_pipe { index loc_dict } {
   connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_int_video/M01_AXI] [get_bd_intf_pins v_frmbuf_wr/s_axi_CTRL]
   connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_int_video/M02_AXI] [get_bd_intf_pins v_proc/s_axi_ctrl]
   # Connect the AXI Streaming interfaces
-  connect_bd_intf_net [get_bd_intf_pins mipi_csi2_rx_subsyst_0/video_out] [get_bd_intf_pins isppipeline/s_axis_video]
+  connect_bd_intf_net [get_bd_intf_pins mipi_csi2_rx_subsyst_0/video_out] [get_bd_intf_pins axis_data_fifo/S_AXIS]
+  connect_bd_intf_net [get_bd_intf_pins axis_data_fifo/M_AXIS] [get_bd_intf_pins isppipeline/s_axis_video]
   connect_bd_intf_net [get_bd_intf_pins isppipeline/m_axis_video] [get_bd_intf_pins v_proc/s_axis]
   connect_bd_intf_net [get_bd_intf_pins v_proc/m_axis] [get_bd_intf_pins v_frmbuf_wr/s_axis_video]
   # Connect the MIPI D-PHY interface
@@ -397,6 +404,18 @@ set_property -dict [list \
   CONFIG.PSU__GPIO_EMIO__PERIPHERAL__ENABLE {1} \
   CONFIG.PSU__GPIO_EMIO__PERIPHERAL__IO {95} \
 ] [get_bd_cells zynq_ultra_ps_e_0]
+
+# PYNQ-ZU board files set PL0-3 clocks to use RPLL, however this results in incorrect frequency being transferred
+# to PetaLinux for reasons we don't yet understand.
+# Frequency can be verified with: sudo cat /sys/kernel/debug/clk/pl0_ref/clk_rate
+if {$target == "pynqzu"} {
+  set_property -dict [list \
+    CONFIG.PSU__CRL_APB__PL0_REF_CTRL__SRCSEL {IOPLL} \
+    CONFIG.PSU__CRL_APB__PL1_REF_CTRL__SRCSEL {IOPLL} \
+    CONFIG.PSU__CRL_APB__PL2_REF_CTRL__SRCSEL {IOPLL} \
+    CONFIG.PSU__CRL_APB__PL3_REF_CTRL__SRCSEL {IOPLL} \
+  ] [get_bd_cells zynq_ultra_ps_e_0]
+}
 
 # Add a processor system reset
 create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset rst_ps_100M
@@ -494,7 +513,7 @@ connect_bd_net [get_bd_ports clk_sel] [get_bd_pins clk_sel/dout]
 
 # Add and configure GPIO for the reserved GPIOs
 set rsvd_gpio [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio rsvd_gpio]
-set_property -dict [list CONFIG.C_GPIO_WIDTH {10} CONFIG.C_ALL_OUTPUTS {1}] $rsvd_gpio
+set_property -dict [list CONFIG.C_GPIO_WIDTH {10} CONFIG.C_ALL_OUTPUTS {1} CONFIG.C_DOUT_DEFAULT {0x00000030} ] $rsvd_gpio
 connect_bd_net [get_bd_pins clk_wiz_0/clk_100M] [get_bd_pins rsvd_gpio/s_axi_aclk]
 connect_bd_net [get_bd_pins rst_ps_axi_100M/peripheral_aresetn] [get_bd_pins rsvd_gpio/s_axi_aresetn]
 lappend hpm0_lpd_ports [list "rsvd_gpio/S_AXI" "clk_wiz_0/clk_100M" "rst_ps_axi_100M/peripheral_aresetn"]

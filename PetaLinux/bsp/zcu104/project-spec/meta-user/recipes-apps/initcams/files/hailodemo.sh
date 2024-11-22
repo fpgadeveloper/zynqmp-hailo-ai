@@ -135,7 +135,7 @@ init_variables $@
 
 
 # Setup the split-display pipeline
-echo | modetest -M xlnx -D a0100000.v_mix -s 52@40:${DISP_RES_W}x${DISP_RES_H}@NV16
+echo | modetest -M xlnx -D a0000000.v_mix -s 60@46:${DISP_RES_W}x${DISP_RES_H}@NV16
 
 # Build each pipeline with an output for a different sub-display area
 
@@ -147,7 +147,7 @@ PIPELINE_00="\
     hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
     queue leaky=2 max-size-buffers=10  ! \
     hailooverlay ! \
-    kmssink bus-id=a0100000.v_mix plane-id=34 render-rectangle=\"<0,0,${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
+    kmssink bus-id=a0000000.v_mix plane-id=34 render-rectangle=\"<0,0,${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
 
 PIPELINE_01="\
     v4l2src device=/dev/video1 io-mode=dmabuf-import stride-align=256 do-timestamp=true ! \
@@ -157,7 +157,7 @@ PIPELINE_01="\
     hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
     queue leaky=2 max-size-buffers=10  ! \
     hailooverlay ! \
-    kmssink bus-id=a0100000.v_mix plane-id=35 render-rectangle=\"<${OUT_RES_W},0,${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
+    kmssink bus-id=a0000000.v_mix plane-id=36 render-rectangle=\"<${OUT_RES_W},0,${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
 
 PIPELINE_02="\
     v4l2src device=/dev/video2 io-mode=dmabuf-import stride-align=256 do-timestamp=true ! \
@@ -167,7 +167,7 @@ PIPELINE_02="\
     hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
     queue leaky=2 max-size-buffers=10  ! \
     hailooverlay ! \
-    kmssink bus-id=a0100000.v_mix plane-id=36 render-rectangle=\"<0,${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
+    kmssink bus-id=a0000000.v_mix plane-id=38 render-rectangle=\"<0,${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
 
 PIPELINE_03="\
     v4l2src device=/dev/video3 io-mode=dmabuf-import stride-align=256 do-timestamp=true ! \
@@ -177,7 +177,7 @@ PIPELINE_03="\
     hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
     queue leaky=2 max-size-buffers=10  ! \
     hailooverlay ! \
-    kmssink bus-id=a0100000.v_mix plane-id=37 render-rectangle=\"<${OUT_RES_W},${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
+    kmssink bus-id=a0000000.v_mix plane-id=40 render-rectangle=\"<${OUT_RES_W},${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
 
 
 

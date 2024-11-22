@@ -54,11 +54,11 @@ All target designs except `zcu106` require the [M.2 M-key Stack FMC] as the M.2 
 
 | Target board          | Target design   | FMC Slot(s) | Cameras | Active M.2 Slots | VCU   | Accelerator | Stack Design | Vivado<br> Edition |
 |-----------------------|-----------------|-------------|---------|------------------|-------|-------------|--------------|-------|
-| [ZCU104]              | `zcu104`        | LPC         | 4     | 1     | :white_check_mark: | :white_check_mark: | :white_check_mark: | Standard :free: |
-| [ZCU106]              | `zcu106`        | HPC0+HPC1   | 4     | 1     | :white_check_mark: | :white_check_mark: | :x:                | Standard :free: |
-| [ZCU106]              | `zcu106_hpc0`   | HPC0        | 4     | 2     | :white_check_mark: | :white_check_mark: | :white_check_mark: | Standard :free: |
+| [ZCU104]              | `zcu104`        | LPC         | 4     | 1     | :white_check_mark: | :x:                | :white_check_mark: | Standard :free: |
+| [ZCU106]              | `zcu106`        | HPC0+HPC1   | 4     | 1     | :white_check_mark: | :x:                | :x:                | Standard :free: |
+| [ZCU106]              | `zcu106_hpc0`   | HPC0        | 4     | 2     | :white_check_mark: | :x:                | :white_check_mark: | Standard :free: |
 | [PYNQ-ZU]             | `pynqzu`        | LPC         | 2     | 1     | :x:                | :x:                | :white_check_mark: | Standard :free: |
-| [UltraZed-EV Carrier] | `uzev`          | HPC         | 4     | 2     | :white_check_mark: | :white_check_mark: | :white_check_mark: | Standard :free: |
+| [UltraZed-EV Carrier] | `uzev`          | HPC         | 4     | 2     | :white_check_mark: | :x:                | :white_check_mark: | Standard :free: |
 
 [ZCU104]: https://www.xilinx.com/zcu104
 [ZCU106]: https://www.xilinx.com/zcu106

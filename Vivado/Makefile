@@ -16,12 +16,12 @@ JOBS ?= 8
 
 # valid targets
 # UPDATER START
-zcu104_target := xilinx.com zcu104 accel
-zcu106_target := xilinx.com zcu106 accel
-zcu106_hpc0_target := xilinx.com zcu106 accel
+zcu104_target := xilinx.com zcu104 no_accel
+zcu106_target := xilinx.com zcu106 no_accel
+zcu106_hpc0_target := xilinx.com zcu106 no_accel
 pynqzu_target := tul.com.tw pynqzu no_accel
 genesyszu_target := digilentinc.com gzu_5ev no_accel
-uzev_target := avnet.com ultrazed_7ev_cc accel
+uzev_target := avnet.com ultrazed_7ev_cc no_accel
 # UPDATER END
 
 TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
