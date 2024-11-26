@@ -41,8 +41,8 @@ def create_tables(data):
     for group in used_groups:
         tables.append('### {} designs'.format(group['name']))
         tables.append('')
-        tables.append('| Target board          | Target design   | FMC Slot(s) | Cameras | Active M.2 Slots | VCU   | Accelerator | Stack Design | Vivado<br> Edition |')
-        tables.append('|-----------------------|-----------------|-------------|---------|------------------|-------|-------------|--------------|-------|')
+        tables.append('| Target board          | Target design   | FMC Slot(s) | Cameras | Active M.2 Slots | VCU   | Stack Design | Vivado<br> Edition |')
+        tables.append('|-----------------------|-----------------|-------------|---------|------------------|-------|--------------|-------|')
         for design in data['designs']:
             if not design['publish']:
                 continue
@@ -54,7 +54,6 @@ def create_tables(data):
                 cols.append('{0}'.format(len(design['cams'])).ljust(5))
                 cols.append('{0}'.format(len(design['lanes'])).ljust(5))
                 cols.append('{0}'.format(to_emoji[design['vcu']]).ljust(18))
-                cols.append('{0}'.format(to_emoji[design['accel']]).ljust(18))
                 cols.append('{0}'.format(to_emoji[design['stack']]).ljust(18))
                 cols.append('{0}'.format(to_edition[design['license']]).ljust(5))
                 tables.append('| ' + ' | '.join(cols) + ' |')

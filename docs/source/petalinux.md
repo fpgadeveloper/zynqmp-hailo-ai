@@ -105,11 +105,12 @@ losing data on one of your hard drives.
 
 ## Test the cameras
 
-1. Log into PetaLinux using the username `root` and password `root`.
+1. Log into PetaLinux using the username `petalinux`. The first time you boot, you will be forced to set the
+   password for this user. On subsequent boots, you will be required to use the chosen password.
 2. Check that the cameras have been enumerated correctly by running the `v4l2-ctl --list-devices` command.
    The output should be similar to the following:
    ```
-   zcu104rpicamfmc20221:~$ v4l2-ctl --list-devices
+   zcu104rpicamfmc20241:~$ v4l2-ctl --list-devices
    vcap_mipi_0_v_proc output 0 (platform:vcap_mipi_0_v_proc:0):
            /dev/video0
    
@@ -132,24 +133,29 @@ losing data on one of your hard drives.
    connected, so if you have only connected 2 cameras for example, then you should only see 2 video devices
    and 2 media devices listed.
 
-3. Run the camera display script with the command `displaycams.sh`.
+3. Run the camera display script with the command `sudo displaycams.sh`.
    The script is located in `/usr/bin` and it can be used to display the video streams from all connected
    cameras on the monitor.
 
-4. Run the Hailo demo script with the command `hailodemo.sh`.
+4. Run the Hailo demo script with the command `sudo hailodemo.sh`.
    The script is located in `/usr/bin` and it can be used to run YOLOv5 on all connected cameras and display
    the video streams with bounding boxes on the monitor.
 
 
 ## Known issues and limitations
 
-### PYNQ-ZU and Genesys-ZU limits
+### UltraZed EV DisplayPort limitation
 
-The ZynqMP devices on the PYNQ-ZU and Genesys-ZU boards are relatively small devices in terms of FPGA resources.
-Fitting the necessary logic to handle four video streams simultaneously can be a challenge on these boards. 
-For this reason, in our Vivado designs for these boards we have included the video pipes for only two cameras:
-CAM1 and CAM2. We have also removed the VVAS Multi-scaler kernel from these designs, however the kernel is not
-required to run the Hailo demo.
+The DisplayPort connector on the UltraZed EV carrier has only a single lane connected to it. Not all monitors
+are able to support resolutions greater than 1080p over a single lane. If you are using a 2K or 4K monitor with
+the UltraZed EV carrier, you might find that the resolution is limited to 1080p or lower.
+
+### PYNQ-ZU limits
+
+The ZynqMP device on the PYNQ-ZU board is a relatively small device in terms of FPGA resources.
+Fitting the necessary logic to handle four video streams simultaneously can be a challenge on this board. 
+For this reason, in our Vivado design for this board we have included the video pipes for only two cameras:
+CAM1 and CAM2.
 
 
 [RPi Camera FMC]: https://camerafmc.com/docs/rpi-camera-fmc/overview/

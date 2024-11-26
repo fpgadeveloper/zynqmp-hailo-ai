@@ -34,9 +34,6 @@ OUT_RES_W=960
 OUT_RES_H=540
 # Output format of the RPi camera pipelines (use a GStreamer pixel format from the dict above)
 OUT_FORMAT=YUY2
-# Resolution of the monitor
-DISP_RES_W=1920
-DISP_RES_H=1080
 # Frame rate (fps)
 FRM_RATE=30
 #--------------------------------------------------------------------------------
@@ -46,6 +43,10 @@ FRM_RATE=30
 # Find the vmixer
 VMIX_PATH=$(find /sys/bus/platform/devices/ -name "*.v_mix" | head -n 1)
 VMIX=$(basename "$VMIX_PATH")
+
+# Find out the monitor's highest resolution
+output=$(modetest -c -M xlnx | grep "#0")
+DISP_RES=$(echo "$output" | awk '{print $2}')
 
 echo "-------------------------------------------------"
 echo " Capture pipeline init: RPi cam -> Scaler -> DDR"
@@ -60,6 +61,9 @@ echo " - Frame rate           : $FRM_RATE fps"
 # Print the bus_id of the video mixer
 echo "Video Mixer found here:"
 echo " - $VMIX"
+
+echo "Monitor resolution:"
+echo " - $DISP_RES"
 
 # Find all the media devices
 media_devices=($(ls /dev/media*))
@@ -123,7 +127,7 @@ done
 # Setup the display pipeline
 #-------------------------------------------------------------------------------
 # Initialize the display pipeline
-echo | modetest -M xlnx -D ${VMIX} -s 60@46:${DISP_RES_W}x${DISP_RES_H}@NV16
+echo | modetest -M xlnx -D ${VMIX} -s 60@46:${DISP_RES}@NV16
 
 #------------------------------------------------------------------------------
 # Run GStreamer to combine all videos and display on the screen

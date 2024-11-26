@@ -8,9 +8,10 @@
 # RPi Camera FMC, and ignore any USB (or other) cameras that are connected.
 # We also use media-ctl to determine the video device that is associated
 # with each media device, and we keep these values in an array.
-# The second part of the script goes through the array of cameras and makes 
-# some changes to their settings. This can be useful for setting all of the
-# cameras to the same configuration.
+# The second part of the script goes through the array of media devices and
+# configures the associated video pipe with values for resolution, format
+# and frame rate, according to a set of variables defined at the top of this
+# script.
 # The next part of the script prints a list of the cameras that were found
 # and configured, showing the port (CAM0,CAM1,CAM2,CAM3), the media device
 # (eg. /dev/media0) and the video device (eg. /dev/video0) for each.
@@ -46,22 +47,47 @@ declare -A format_dict
 format_dict["NV12"]="VYYUYY8_1X24"
 format_dict["YUY2"]="UYVY8_1X16"
 
-#-------------------------------------------------------------------------------
-# Example settings
-#-------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------
+# Example settings - the script will configure ALL video pipelines to these specs
+#--------------------------------------------------------------------------------
 # Resolution of RPi cameras (must be a resolution supported by the IMX219 Linux driver 640x480, 1640x1232, 1920x1080)
 SRC_RES_W=1920
 SRC_RES_H=1080
 # Resolution of RPi camera pipelines (after Video Processing Subsystem IP)
 OUT_RES_W=1280
 OUT_RES_H=720
-# Output format of the RPi camera pipelines
+# Output format of the RPi camera pipelines (use a GStreamer pixel format from the dict above)
 OUT_FORMAT=YUY2
-# Resolution of the monitor
-DISP_RES_W=2560
-DISP_RES_H=1440
 # Frame rate (fps)
 FRM_RATE=25
+#--------------------------------------------------------------------------------
+# End of example settings
+#--------------------------------------------------------------------------------
+
+# Find the vmixer
+VMIX_PATH=$(find /sys/bus/platform/devices/ -name "*.v_mix" | head -n 1)
+VMIX=$(basename "$VMIX_PATH")
+
+# Find out the monitor's highest resolution
+output=$(modetest -c -M xlnx | grep "#0")
+DISP_RES=$(echo "$output" | awk '{print $2}')
+
+echo "-------------------------------------------------"
+echo " Capture pipeline init: RPi cam -> Scaler -> DDR"
+echo "-------------------------------------------------"
+
+# Print the settings
+echo "Configuring all video capture pipelines to:"
+echo " - RPi Camera output    : $SRC_RES_W x $SRC_RES_H"
+echo " - Scaler (VPSS) output : $OUT_RES_W x $OUT_RES_H $OUT_FORMAT"
+echo " - Frame rate           : $FRM_RATE fps"
+
+# Print the bus_id of the video mixer
+echo "Video Mixer found here:"
+echo " - $VMIX"
+
+echo "Monitor resolution:"
+echo " - $DISP_RES"
 
 # Find all the media devices
 media_devices=($(ls /dev/media*))
@@ -115,7 +141,6 @@ for media in "${!media_to_video_mapping[@]}"; do
         media-ctl -V "\"${V_PROC}\":1  [fmt:${format_dict[$OUT_FORMAT]}/${OUT_RES_W}x${OUT_RES_H} field:none colorspace:srgb]" -d $media
 done
 
-
 #-------------------------------------------------------------------------------
 # End of the section to edit.
 #-------------------------------------------------------------------------------
@@ -126,63 +151,50 @@ for media in "${!media_to_video_mapping[@]}"; do
         echo " - ${media_to_cam_interface[$media]}: $media = ${media_to_video_mapping[$media]}"
 done
 
-
 #-------------------------------------------------------------------------------
-# MAIN
+# Setup the display pipeline
 #-------------------------------------------------------------------------------
 
 init_variables $@
 
 
 # Setup the split-display pipeline
-echo | modetest -M xlnx -D a0000000.v_mix -s 60@46:${DISP_RES_W}x${DISP_RES_H}@NV16
+echo | modetest -M xlnx -D ${VMIX} -s 60@46:${DISP_RES}@NV16
 
-# Build each pipeline with an output for a different sub-display area
+#------------------------------------------------------------------------------
+# Run GStreamer to combine all videos and display on the screen
+#-------------------------------------------------------------------------------
+full_command="gst-launch-1.0 -v "
 
-PIPELINE_00="\
-    v4l2src device=/dev/video0 io-mode=dmabuf-import stride-align=256 do-timestamp=true ! \
-    video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=${OUT_FORMAT}, framerate=${FRM_RATE}/1 ! \
-    hailonet hef-path=$hef_path scheduling-algorithm=1 batch-size=1 vdevice-key=1 ! \
-    queue leaky=2 max-size-buffers=3 ! \
-    hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
-    queue leaky=2 max-size-buffers=10  ! \
-    hailooverlay ! \
-    kmssink bus-id=a0000000.v_mix plane-id=34 render-rectangle=\"<0,0,${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
+# Screen quadrants: TOP-LEFT, TOP-RIGHT, BOTTOM-LEFT, BOTTOM-RIGHT
+quadrants=(
+        "plane-id=34 render-rectangle=\"<0,0,${OUT_RES_W},${OUT_RES_H}>\""
+        "plane-id=36 render-rectangle=\"<${OUT_RES_W},0,${OUT_RES_W},${OUT_RES_H}>\""
+        "plane-id=38 render-rectangle=\"<0,${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>\""
+        "plane-id=40 render-rectangle=\"<${OUT_RES_W},${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>\""
+)
 
-PIPELINE_01="\
-    v4l2src device=/dev/video1 io-mode=dmabuf-import stride-align=256 do-timestamp=true ! \
-    video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=${OUT_FORMAT}, framerate=${FRM_RATE}/1 ! \
-    hailonet hef-path=$hef_path scheduling-algorithm=1 batch-size=1 vdevice-key=1 ! \
-    queue leaky=2 max-size-buffers=3 ! \
-    hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
-    queue leaky=2 max-size-buffers=10  ! \
-    hailooverlay ! \
-    kmssink bus-id=a0000000.v_mix plane-id=36 render-rectangle=\"<${OUT_RES_W},0,${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
+index=0
 
-PIPELINE_02="\
-    v4l2src device=/dev/video2 io-mode=dmabuf-import stride-align=256 do-timestamp=true ! \
-    video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=${OUT_FORMAT}, framerate=${FRM_RATE}/1 ! \
-    hailonet hef-path=$hef_path scheduling-algorithm=1 batch-size=1 vdevice-key=1 ! \
-    queue leaky=2 max-size-buffers=3 ! \
-    hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
-    queue leaky=2 max-size-buffers=10  ! \
-    hailooverlay ! \
-    kmssink bus-id=a0000000.v_mix plane-id=38 render-rectangle=\"<0,${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
+# For each connected camera, add pipeline to gstreamer command
+for media in "${!media_to_video_mapping[@]}"; do
+        # Append the specific command for the current iteration to the full command
+        full_command+="v4l2src device=${media_to_video_mapping[$media]} io-mode=dmabuf-import stride-align=256 do-timestamp=true ! "
+        full_command+="video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=${OUT_FORMAT}, framerate=${FRM_RATE}/1 ! "
+        full_command+="synchailonet hef-path=$hef_path scheduling-algorithm=1 batch-size=1 vdevice-key=1 ! "
+        full_command+="queue leaky=2 max-size-buffers=3 ! "
+        full_command+="hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! "
+        full_command+="queue leaky=2 max-size-buffers=10  ! "
+        full_command+="hailooverlay ! "
+        full_command+="kmssink bus-id=${VMIX} ${quadrants[$index]} show-preroll-frame=false sync=false can-scale=false "
+        index=$((index + 1))
+done
 
-PIPELINE_03="\
-    v4l2src device=/dev/video3 io-mode=dmabuf-import stride-align=256 do-timestamp=true ! \
-    video/x-raw, width=${OUT_RES_W}, height=${OUT_RES_H}, format=${OUT_FORMAT}, framerate=${FRM_RATE}/1 ! \
-    hailonet hef-path=$hef_path scheduling-algorithm=1 batch-size=1 vdevice-key=1 ! \
-    queue leaky=2 max-size-buffers=3 ! \
-    hailofilter function-name=$network_name config-path=$json_config_path so-path=$postprocess_so qos=false ! \
-    queue leaky=2 max-size-buffers=10  ! \
-    hailooverlay ! \
-    kmssink bus-id=a0000000.v_mix plane-id=40 render-rectangle=\"<${OUT_RES_W},${OUT_RES_H},${OUT_RES_W},${OUT_RES_H}>\" show-preroll-frame=false sync=false can-scale=false"
+# Display the command being run
+echo "GStreamer command:"
+echo "--------------------------"
+echo "${full_command}"
+echo "--------------------------"
 
-
-
-gst-launch-1.0 -v \
-${PIPELINE_00} \
-${PIPELINE_01} \
-${PIPELINE_02} \
-${PIPELINE_03}
+# Execute the command
+eval "${full_command}"

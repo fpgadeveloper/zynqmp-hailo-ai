@@ -52,13 +52,13 @@ All target designs except `zcu106` require the [M.2 M-key Stack FMC] as the M.2 
 <!-- updater start -->
 ### Zynq UltraScale+ designs
 
-| Target board          | Target design   | FMC Slot(s) | Cameras | Active M.2 Slots | VCU   | Accelerator | Stack Design | Vivado<br> Edition |
-|-----------------------|-----------------|-------------|---------|------------------|-------|-------------|--------------|-------|
-| [ZCU104]              | `zcu104`        | LPC         | 4     | 1     | :white_check_mark: | :x:                | :white_check_mark: | Standard :free: |
-| [ZCU106]              | `zcu106`        | HPC0+HPC1   | 4     | 1     | :white_check_mark: | :x:                | :x:                | Standard :free: |
-| [ZCU106]              | `zcu106_hpc0`   | HPC0        | 4     | 2     | :white_check_mark: | :x:                | :white_check_mark: | Standard :free: |
-| [PYNQ-ZU]             | `pynqzu`        | LPC         | 2     | 1     | :x:                | :x:                | :white_check_mark: | Standard :free: |
-| [UltraZed-EV Carrier] | `uzev`          | HPC         | 4     | 2     | :white_check_mark: | :x:                | :white_check_mark: | Standard :free: |
+| Target board          | Target design   | FMC Slot(s) | Cameras | Active M.2 Slots | VCU   | Stack Design | Vivado<br> Edition |
+|-----------------------|-----------------|-------------|---------|------------------|-------|--------------|-------|
+| [ZCU104]              | `zcu104`        | LPC         | 4     | 1     | :white_check_mark: | :white_check_mark: | Standard :free: |
+| [ZCU106]              | `zcu106`        | HPC0+HPC1   | 4     | 1     | :white_check_mark: | :x:                | Standard :free: |
+| [ZCU106]              | `zcu106_hpc0`   | HPC0        | 4     | 2     | :white_check_mark: | :white_check_mark: | Standard :free: |
+| [PYNQ-ZU]             | `pynqzu`        | LPC         | 2     | 1     | :x:                | :white_check_mark: | Standard :free: |
+| [UltraZed-EV Carrier] | `uzev`          | HPC         | 4     | 2     | :white_check_mark: | :white_check_mark: | Standard :free: |
 
 [ZCU104]: https://www.xilinx.com/zcu104
 [ZCU106]: https://www.xilinx.com/zcu106
@@ -102,6 +102,45 @@ cd zynqmp-hailo-ai/PetaLinux
 make petalinux TARGET=uzev
 ```
 
+### Build issue and workaround
+
+When building the PetaLinux project, you might experience one or more of the following error messages:
+
+```
+ERROR: hailortcli-4.19.0-r0 do_configure: ExecutionError('/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/hailortcli/4.19.0-r0/temp/run.do_configure.2849196', 1, None, None)
+ERROR: Logfile of failure stored in: /home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/hailortcli/4.19.0-r0/temp/log.do_configure.2849196
+ERROR: Task (/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/project-spec/meta-user/meta-hailo/meta-hailo-libhailort/recipes-hailo/hailortcli/hailortcli_4.19.0.bb:do_configure) failed with exit code '1'
+ERROR: libhailort-4.19.0-r0 do_configure: ExecutionError('/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/libhailort/4.19.0-r0/temp/run.do_configure.2851680', 1, None, None)
+ERROR: Logfile of failure stored in: /home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/libhailort/4.19.0-r0/temp/log.do_configure.2851680
+ERROR: Task (/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/project-spec/meta-user/meta-hailo/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.19.0.bb:do_configure) failed with exit code '1'
+```
+
+If you open one of the logfiles of those error messages, you will find error messages that are similar to the following:
+
+```
+Cloning into 'protobuf-src'...
+fatal: unable to access 'https://github.com/protocolbuffers/protobuf.git/': error setting certificate file: /usr/local/oe-sdk-hardcoded-buildpath/sysroots/x86_64-petalinux-linux/etc/ssl/certs/ca-certificates.crt
+```
+
+#### Explanation:
+
+In order to build the meta-hailo recipes, PetaLinux needs to clone some repositories. To do this, it requires 
+a digital certificate that is expecting to find in path `/usr/local/oe-sdk-hardcoded-buildpath/sysroots/x86_64-petalinux-linux/etc/ssl/certs/`.
+The correct location of the certificate is `/<petalinux-install-path>/2024.1/sysroots/x86_64-petalinux-linux/etc/ssl/certs/`.
+
+#### Work-around:
+
+As a work-around to this issue, we suggest creating a symbolic link so that PetaLinux finds the digital certificate
+where it is expecting to find it.
+
+```
+sudo mkdir -p /usr/local/oe-sdk-hardcoded-buildpath/sysroots/x86_64-petalinux-linux/etc/ssl/certs/
+sudo ln -s /<petalinux-install-path>/2024.1/sysroots/x86_64-petalinux-linux/etc/ssl/certs/ca-certificates.crt /usr/local/oe-sdk-hardcoded-buildpath/sysroots/x86_64-petalinux-linux/etc/ssl/certs/ca-certificates.crt
+```
+
+Note that before running the commands, you must replace `<petalinux-install-path>` with the correct path to your PetaLinux
+installation. After running the above commands, delete the failed PetaLinux project (eg. `cd PetaLinux & rm -rf pynqzu`) and re-run make.
+
 ## Contribute
 
 We strongly encourage community contribution to these projects. Please make a pull request if you
@@ -114,9 +153,7 @@ Thank you to everyone who supports us!
 
 ### The TODO list
 
-* Test all M.2 M-key Stack FMC based designs on hardware
-* Add 2x camera script for PYNQ-ZU board
-* Add some demo scripts for VVAS and VCU
+* Add some demo scripts for VCU
 
 ## About us
 

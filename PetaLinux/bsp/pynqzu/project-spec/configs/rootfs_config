@@ -4159,3 +4159,18 @@ CONFIG_package-feed-uris=""
 CONFIG_package-feed-archs=""
 CONFIG_imagefeature-debug-tweaks=y
 
+# Hailo
+
+CONFIG_libgsthailo=y
+CONFIG_libgsthailotools=y
+CONFIG_libhailort=y
+CONFIG_auto-resize=y
+CONFIG_cv-bridge=y
+CONFIG_cv-bridge-dev=y
+CONFIG_hailo-firmware=y
+CONFIG_hailo-pci=y
+CONFIG_hailo-post-processes=y
+CONFIG_hailortcli=y
+CONFIG_pyhailort=y
+CONFIG_simd=y
+CONFIG_tappas-apps=y

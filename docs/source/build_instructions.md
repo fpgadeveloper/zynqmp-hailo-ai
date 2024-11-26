@@ -21,12 +21,12 @@ Edition **without a license**.
 
 This repo contains several designs that target the various supported development boards and their
 FMC connectors. The table below lists the target design name, the camera ports supported by the design and 
-the FMC connector on which to connect the RPi Camera FMC.
+the FMC connector on which to connect the [RPi Camera FMC].
 
-Note that there are two target designs for the [ZCU106][5] board: `zcu106` and `zcu106_hpc0`, and the
+Note that there are two target designs for the [ZCU106] board: `zcu106` and `zcu106_hpc0`, and the
 differences are explained in the table below.
-All target designs except `zcu106` require the [M.2 M-key Stack FMC][2] as the M.2 adapter for the Hailo-8, with the
-[RPi Camera FMC][3] stacked on top of it.
+All target designs except `zcu106` require the [M.2 M-key Stack FMC] as the M.2 adapter for the Hailo-8, with the
+[RPi Camera FMC] stacked on top of it.
 
 {% for group in data.groups %}
     {% set designs_in_group = [] %}
@@ -38,9 +38,9 @@ All target designs except `zcu106` require the [M.2 M-key Stack FMC][2] as the M
     {% if designs_in_group | length > 0 %}
 ### {{ group.name }} designs
 
-| Target board        | Target design     | Cameras | M.2 <br>Active <br>Slots | FMC Slot    | VCU | Accelerator | Stack Design | Vivado<br> Edition |
-|---------------------|-------------------|---------|------------------|-------------|-----|-----|-----|-----|
-{% for design in data.designs %}{% if design.group == group.label and design.publish %}| [{{ design.board }}]({{ design.link }}) | `{{ design.label }}` | {{ design.cams | length }} | {{ design.lanes | length }} | {{ design.connector }} | {% if design.vcu %} ✅ {% else %} ❌ {% endif %} | {% if design.accel %} ✅ {% else %} ❌ {% endif %} | {% if design.stack %} ✅ {% else %} ❌ {% endif %} | {{ "Enterprise" if design.license else "Standard 🆓" }} |
+| Target board        | Target design     | Cameras | M.2 <br>Active <br>Slots | FMC Slot    | VCU | Stack Design | Vivado<br> Edition |
+|---------------------|-------------------|---------|------------------|-------------|-----|-----|-----|
+{% for design in data.designs %}{% if design.group == group.label and design.publish %}| [{{ design.board }}]({{ design.link }}) | `{{ design.label }}` | {{ design.cams | length }} | {{ design.lanes | length }} | {{ design.connector }} | {% if design.vcu %} ✅ {% else %} ❌ {% endif %} | {% if design.stack %} ✅ {% else %} ❌ {% endif %} | {{ "Enterprise" if design.license else "Standard 🆓" }} |
 {% endif %}{% endfor %}
 {% endif %}
 {% endfor %}
@@ -59,6 +59,21 @@ All target designs except `zcu106` require the [M.2 M-key Stack FMC][2] as the M
 5. The `zcu106_hpc0` and `uzev` target designs have support for 2x M.2 modules. To use the Hailo demo scripts,
    at least one of these modules must be the [Hailo-8 M.2 AI Acceleration Module]. The second slot can be used
    for a second Hailo module, or an NVMe SSD for storage.
+
+### Stack designs
+
+The "stack" designs are intended to be used with the [RPi Camera FMC] stacked on top of the [M.2 M-key Stack FMC]
+as shown in the image below. This setup allows both the [RPi Camera FMC] and the M.2 adapter to be 
+connected to the carrier board through a single FMC connector.
+
+![ZCU104 with camera and Hailo stack](images/m2-mkey-stack-on-zcu104.jpg)
+
+### Non-stack design
+
+The single non-stack design for [ZCU106] (target design `zcu106`) is intended to be used with the [RPi Camera FMC] on connector HPC0 and
+the [FPGA Drive FMC Gen4] on connector HPC1 as shown in the image below.
+
+![ZCU106 non-stack setup](https://www.fpgadeveloper.com/multi-camera-yolov5-on-zynq-ultrascale-with-hailo-8-ai-acceleration/images/zynqmp-hailo-ai-7.jpg)
 
 ## Linux only
 
@@ -124,6 +139,45 @@ design if it has not already been done.
    Note that if you skipped the Vivado build steps above, the Makefile will first generate and
    build the Vivado project, and then build the PetaLinux project.
 
+### Build issue and workaround
+
+When building the PetaLinux project, you might experience one or more of the following error messages:
+
+```
+ERROR: hailortcli-4.19.0-r0 do_configure: ExecutionError('/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/hailortcli/4.19.0-r0/temp/run.do_configure.2849196', 1, None, None)
+ERROR: Logfile of failure stored in: /home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/hailortcli/4.19.0-r0/temp/log.do_configure.2849196
+ERROR: Task (/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/project-spec/meta-user/meta-hailo/meta-hailo-libhailort/recipes-hailo/hailortcli/hailortcli_4.19.0.bb:do_configure) failed with exit code '1'
+ERROR: libhailort-4.19.0-r0 do_configure: ExecutionError('/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/libhailort/4.19.0-r0/temp/run.do_configure.2851680', 1, None, None)
+ERROR: Logfile of failure stored in: /home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/libhailort/4.19.0-r0/temp/log.do_configure.2851680
+ERROR: Task (/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/project-spec/meta-user/meta-hailo/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.19.0.bb:do_configure) failed with exit code '1'
+```
+
+If you open one of the logfiles of those error messages, you will find error messages that are similar to the following:
+
+```
+Cloning into 'protobuf-src'...
+fatal: unable to access 'https://github.com/protocolbuffers/protobuf.git/': error setting certificate file: /usr/local/oe-sdk-hardcoded-buildpath/sysroots/x86_64-petalinux-linux/etc/ssl/certs/ca-certificates.crt
+```
+
+#### Explanation:
+
+In order to build the meta-hailo recipes, PetaLinux needs to clone some repositories. To do this, it requires 
+a digital certificate that is expecting to find in path `/usr/local/oe-sdk-hardcoded-buildpath/sysroots/x86_64-petalinux-linux/etc/ssl/certs/`.
+The correct location of the certificate is `/<petalinux-install-path>/2024.1/sysroots/x86_64-petalinux-linux/etc/ssl/certs/`.
+
+#### Work-around:
+
+As a work-around to this issue, we suggest creating a symbolic link so that PetaLinux finds the digital certificate
+where it is expecting to find it.
+
+```
+sudo mkdir -p /usr/local/oe-sdk-hardcoded-buildpath/sysroots/x86_64-petalinux-linux/etc/ssl/certs/
+sudo ln -s /<petalinux-install-path>/2024.1/sysroots/x86_64-petalinux-linux/etc/ssl/certs/ca-certificates.crt /usr/local/oe-sdk-hardcoded-buildpath/sysroots/x86_64-petalinux-linux/etc/ssl/certs/ca-certificates.crt
+```
+
+Note that before running the commands, you must replace `<petalinux-install-path>` with the correct path to your PetaLinux
+installation. After running the above commands, delete the failed PetaLinux project (eg. `cd PetaLinux & rm -rf pynqzu`) and re-run make.
+
 ### PetaLinux offline build
 
 If you need to build the PetaLinux projects offline (without an internet connection), you can
@@ -160,3 +214,4 @@ Now when you use `make` to build the PetaLinux projects, they will be configured
 [M.2 M-key Stack FMC]: https://www.fpgadrive.com/docs/m2-mkey-stack-fmc/overview/
 [FPGA Drive FMC Gen4]: https://www.fpgadrive.com/docs/fpga-drive-fmc-gen4/overview/
 [RPi Camera FMC]: https://camerafmc.com/docs/rpi-camera-fmc/overview/
+[ZCU106]: https://www.xilinx.com/zcu106

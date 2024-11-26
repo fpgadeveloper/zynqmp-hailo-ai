@@ -40,6 +40,11 @@ and generate a Vivado constraints file for you.
 
 ## Board specific notes
 
+### UltraZed EV carrier DisplayPort limitation
+
+The UltraZed EV carrier has a DisplayPort connector with only a single lane connected. Not all
+DisplayPort monitors can operate at resolutions above 1080p on a single lane.
+
 ### PYNQ-ZU and UltraZed EV carrier
 
 Note that the PYNQ-ZU and UltraZed EV carrier boards have a fixed VADJ voltage that is set to 1.8VDC. The 
