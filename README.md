@@ -36,11 +36,12 @@ In order to test this design on hardware, you will need the following:
 * 1x [Hailo-8 M.2 AI Acceleration Module]
 * 4x [Raspberry Pi Camera Module 2](https://www.raspberrypi.com/products/camera-module-v2/)
 * 1x [RPi Camera FMC]
-* 1x [FPGA Drive FMC Gen4] (for `zcu106` target design)
-* 1x [M.2 M-key Stack FMC] (for all other designs)
-* 1x DisplayPort monitor that supports 2560 x 1440 resolution video
-* Alternatively, 1x HDMI monitor that supports 2560 x 1440 resolution and DP-to-HDMI adapter
-* 1x of the supported target boards listed below
+* 1x [FPGA Drive FMC Gen4] or 1x [M.2 M-key Stack FMC]
+* 1x DisplayPort monitor (1080p minimum resolution, 2K/2560x1440 ideal)
+* Alternatively, 1x HDMI monitor and DP-to-HDMI adapter
+* 1x of the supported target boards (see target designs table)
+
+Below are images of some of the required parts.
 
 | RPi Camera FMC | Hailo-8 M.2 AI Module |
 |---------------------|---------------------|
@@ -79,7 +80,8 @@ All target designs except `zcu106` require the [M.2 M-key Stack FMC] as the M.2 
    FREE edition which can be used without a license. Vivado *Enterprise* Edition requires
    a license however a 30-day evaluation license is available from the AMD Xilinx Licensing site.
 2. The Stack Designs use the [M.2 M-key Stack FMC] with the [RPi Camera FMC] stacked on top of it. The non-stack
-   designs use the [FPGA Drive FMC Gen4] on one FMC connector, and the [RPi Camera FMC] on another.
+   designs use the [FPGA Drive FMC Gen4] on one FMC connector, and the [RPi Camera FMC] on another. This
+   concept is best explained by the images below.
 3. The `zcu106` target design uses the [FPGA Drive FMC Gen4] as the M.2 adapter for the Hailo-8.
    In that design, the [FPGA Drive FMC Gen4] connects to HPC1 while the [RPi Camera FMC] connects
    to the HPC0 connector.
@@ -91,15 +93,9 @@ All target designs except `zcu106` require the [M.2 M-key Stack FMC] as the M.2 
 
 ### Stack vs Non-stack designs
 
-The "stack" designs are intended to be used with the [RPi Camera FMC] stacked on top of the [M.2 M-key Stack FMC]
-as shown in the left image below. This setup allows both the [RPi Camera FMC] and the M.2 adapter to be 
-connected to the carrier board through a single FMC connector.
-
-The single non-stack design for [ZCU106] (target design `zcu106`) is intended to be used with the [RPi Camera FMC] on connector HPC0 and
-the [FPGA Drive FMC Gen4] on connector HPC1 as shown in the right image below.
-
 | Stack design | Non-stack design |
 |--------------|------------------|
+| Requires [M.2 M-key Stack FMC] and uses only one FMC slot | Requires [FPGA Drive FMC Gen4] and uses two FMC slots |
 | ![ZCU104 with camera and Hailo stack](docs/source/images/m2-mkey-stack-on-zcu104.jpg) | ![ZCU106 non-stack setup](https://www.fpgadeveloper.com/multi-camera-yolov5-on-zynq-ultrascale-with-hailo-8-ai-acceleration/images/zynqmp-hailo-ai-7.jpg) |
 
 ## Build instructions

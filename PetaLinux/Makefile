@@ -180,7 +180,6 @@ $(PETL_CFG_DONE): | $(PETL_COMP_DIR)
 		echo 'Configuring project for offline build ($(SSTATE_PATH))'; \
 	fi
 	touch $(TARGET)/configdone.txt
-	sleep 3
 	cd $(TARGET) && petalinux-config --silentconfig
 	
 $(PETL_COMP_DIR): | $(PETL_DIR)
