@@ -115,6 +115,12 @@
 		clock-frequency = <199998000>;
 		compatible = "fixed-clock";
 	};
+
+	ref_si5324: ref_si5324 {
+	    compatible = "fixed-clock";
+	    #clock-cells = <0>;
+	    clock-frequency = <100000000>;
+	};
 };
 
 &i2c0 {
@@ -310,6 +316,26 @@
 		regulator-max-microvolt = <1200000>;
 	};
 };
+
+/*
+&hdmi_axi_iic {
+	si5324: clock-generator@68 {
+		status = "okay";
+		compatible = "silabs,si5324";
+		reg = <0x68>;
+		#address-cells = <1>;
+        #size-cells = <0>;
+        #clock-cells = <1>;
+        clocks = <&ref_si5324>;
+        clock-names = "clkin2";
+        
+        fmc_si5324_clk: clk0@0 {
+            reg = <0>;
+            clock-frequency = <100000000>;
+        };
+	};
+};
+*/
 
 &mipi_1_axi_iic_0 {
 	imx219_cam1: sensor@10 {

@@ -159,3 +159,9 @@ set_property LOC GTHE4_CHANNEL_X0Y7 [get_cells -hierarchical -filter { PRIMITIVE
 # PYNQ-ZU LPC transceiver for M2 slot 1 is best aligned with PCIE_X0Y1
 set_property LOC PCIE40E4_X0Y1 [get_cells *_i/xdma_0/inst/pcie4_ip_i/inst/*_pcie_4_0_pipe_inst/pcie_4_0_e4_inst]
 
+# HDMI I2C
+set_property PACKAGE_PIN A15 [get_ports HDMI_IIC_scl_io];
+set_property PACKAGE_PIN B15 [get_ports HDMI_IIC_sda_io];
+set_property IOSTANDARD LVCMOS33 [get_ports HDMI_IIC_*]
+set_property SLEW SLOW [get_ports HDMI_IIC_*]
+set_property DRIVE 4 [get_ports HDMI_IIC_*]

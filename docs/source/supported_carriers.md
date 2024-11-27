@@ -54,9 +54,19 @@ all of the designs in this repository use 1.2VDC compatible IO standards, even t
 PYNQ-ZU and UltraZed EV carrier boards are powered at 1.8VDC. At the moment this is the only practical and
 functional workaround that we have found for these two target boards.
 
+### PYNQ-ZU
+
+The FMC GT reference clock connects to the GTH bank 224 MGTREFCLK0P/N via a jitter attenuator device [Si5324] 
+on the PYNQ-ZU board. For correct operation of this reference design, the [Si5324] must be configured to route 
+the 100MHz FMC GT reference clock through to the GT.
+
+To configure the [Si5324] device via I2C bus, the Vivado design contains an AXI IIC IP (hdmi_axi_iic).
+The PetaLinux project contains a U-boot script to configure the [Si5324] and then reset the XDMA IP by 
+toggling the pl_resetn0 pin (Bank 5, bit 31, EMIO 95). This script can be found in 
+`PetaLinux/bsp/pynqzu/project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h`.
 
 [contact Opsero]: https://opsero.com/contact-us
 [RPi Camera FMC]: https://camerafmc.com/docs/rpi-camera-fmc/overview/
 [compatibility list]: https://camerafmc.com/docs/rpi-camera-fmc/compatibility/
 [AMD Xilinx MIPI CSI Controller Subsystem IP]: https://docs.xilinx.com/r/en-US/pg202-mipi-dphy
-
+[Si5324]: https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/data-sheets/Si5324.pdf

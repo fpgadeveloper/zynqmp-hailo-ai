@@ -1014,6 +1014,17 @@ if {$has_vcu} {
   connect_bd_intf_net -boundary_type upper [get_bd_intf_pins vcu/M00_AXI_VCU_EN] [get_bd_intf_pins zynq_ultra_ps_e_0/S_AXI_HP1_FPD]
 }
 
+# PYNQ-ZU board needs AXI IIC to select FMC GBTCLK0 as source for GT ref clock
+if {$target == "pynqzu"} {
+  create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic hdmi_axi_iic
+  create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 HDMI_IIC
+  connect_bd_intf_net [get_bd_intf_ports HDMI_IIC] [get_bd_intf_pins hdmi_axi_iic/IIC]
+  lappend priority_intr_list "hdmi_axi_iic/iic2intc_irpt"
+  lappend hpm0_lpd_ports [list "hdmi_axi_iic/S_AXI" "clk_wiz_0/clk_100M" "rst_ps_axi_100M/peripheral_aresetn"]
+  connect_bd_net [get_bd_pins clk_wiz_0/clk_100M] [get_bd_pins hdmi_axi_iic/s_axi_aclk]
+  connect_bd_net [get_bd_pins rst_ps_axi_100M/peripheral_aresetn] [get_bd_pins hdmi_axi_iic/s_axi_aresetn]
+}
+
 ####################################################
 # Display pipeline - to DisplayPort live interface
 ####################################################
