@@ -18,6 +18,7 @@ This is the documentation for the Multi-camera ZynqMP Hailo AI reference designs
    supported_carriers
    build_instructions
    petalinux
+   yocto
    advanced
    troubleshooting
    revision_history
