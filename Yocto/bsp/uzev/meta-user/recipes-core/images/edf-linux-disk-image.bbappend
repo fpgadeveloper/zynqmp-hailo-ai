@@ -13,7 +13,6 @@ IMAGE_INSTALL:append = " \
     libgsthailo \
     libgsthailotools \
     hailo-post-processes \
-    gstreamer-vcu-examples \
     initcams \
     v4l-utils \
     nvme-cli \
@@ -22,3 +21,10 @@ IMAGE_INSTALL:append = " \
     nfs-utils \
     can-utils \
 "
+
+# gstreamer-vcu-examples has REQUIRED_MACHINE_FEATURES = "vcu" (hardened Video
+# Codec Unit). gen-machineconf only sets the vcu MACHINE_FEATURE when the design's
+# XSA exposes a VCU; requesting the package unconditionally fails the build with
+# "Nothing RPROVIDES gstreamer-vcu-examples" on non-VCU targets. Pull it in only
+# when the generated machine actually has the feature.
+IMAGE_INSTALL:append = " ${@bb.utils.contains('MACHINE_FEATURES', 'vcu', 'gstreamer-vcu-examples', '', d)}"

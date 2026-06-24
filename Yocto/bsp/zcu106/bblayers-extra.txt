@@ -1,0 +1,8 @@
+# Extra Yocto meta-layers for this bsp, added to bblayers.conf by
+# Yocto/scripts/configure-build.sh. Paths are relative to the repo root.
+# meta-hailo is a git submodule (branch hailo8-scarthgap); build.py's
+# ensure_submodules() initialises it. Order matters: meta-hailo-tappas depends
+# on meta-hailo-libhailort (LAYERDEPENDS), so list libhailort first.
+submodules/meta-hailo/meta-hailo-libhailort
+submodules/meta-hailo/meta-hailo-accelerator
+submodules/meta-hailo/meta-hailo-tappas

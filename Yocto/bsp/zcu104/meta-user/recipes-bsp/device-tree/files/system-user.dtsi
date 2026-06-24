@@ -8,6 +8,12 @@
  * domain by device-tree.bbappend. Ported from the ZynqMP Hailo AI PetaLinux BSP.
  */
 
+/* From include/dt-bindings/clock/xlnx-zynqmp-clk.h. PetaLinux pulled these in
+ * transitively; the EDF device-tree recipe sets KERNEL_INCLUDE="" so they must
+ * be inlined here for the DP node's <&zynqmp_clk DP_*_REF> clock refs. */
+#define DP_VIDEO_REF 16
+#define DP_AUDIO_REF 17
+
 / {
 	dp_aclk: dp_aclk {
 		compatible = "fixed-clock";

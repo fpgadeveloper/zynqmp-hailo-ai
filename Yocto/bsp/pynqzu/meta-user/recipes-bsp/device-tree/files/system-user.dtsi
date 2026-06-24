@@ -11,7 +11,15 @@
 // Copyright (C) 2021 Xilinx, Inc
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <dt-bindings/phy/phy.h>
+/*
+ * The EDF device-tree recipe sets KERNEL_INCLUDE="" so dt-bindings headers do
+ * not resolve in the cpp preprocessing pass; inline the only macros used.
+ */
+/* From include/dt-bindings/phy/phy.h */
+#define PHY_TYPE_USB3 4
+/* From include/dt-bindings/clock/xlnx-zynqmp-clk.h (DP node clock refs) */
+#define DP_VIDEO_REF 16
+#define DP_AUDIO_REF 17
 
 / {
 	model = "TUL PYNQ-ZU RevB";
