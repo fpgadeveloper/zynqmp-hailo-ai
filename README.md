@@ -23,7 +23,8 @@ Important links:
 
 ## Requirements
 
-This project is designed for version 2025.2 of the Xilinx tools (Vivado/Vitis/PetaLinux). 
+This project is designed for version 2025.2 of the Xilinx tools (Vivado/Vitis/PetaLinux), and
+the 2025.2 release of the AMD Embedded Development Framework (Yocto). 
 If you are using an older version of the Xilinx tools, then refer to the 
 [release tags](https://github.com/fpgadeveloper/zynqmp-hailo-ai/tags "releases")
 to find the version of this repository that matches your version of the tools.
@@ -32,13 +33,14 @@ In order to test this design on hardware, you will need the following:
 
 * Vivado 2025.2
 * Vitis 2025.2
-* PetaLinux Tools 2025.2
+* PetaLinux Tools 2025.2 (PetaLinux flow), or [Google's repo tool](https://gerrit.googlesource.com/git-repo/) (Yocto flow)
 * 1x [Hailo-8 M.2 AI Acceleration Module]
 * 4x [Raspberry Pi Camera Module 2](https://www.raspberrypi.com/products/camera-module-v2/)
 * 1x [RPi Camera FMC]
 * 1x [FPGA Drive FMC Gen4] or 1x [M.2 M-key Stack FMC]
-* 1x DisplayPort monitor (1080p minimum resolution, 2K/2560x1440 ideal)
+* 1x DisplayPort monitor that supports 1920x1080 at 60 Hz (the mode the design outputs)
 * Alternatively, 1x HDMI monitor and DP-to-HDMI adapter
+* Optional (`zcu106_hpc0` and `uzev` only): a second Hailo-8 or an NVMe SSD for the second M.2 slot
 * 1x of the supported target boards (see target designs table)
 
 Below are images of some of the required parts.
@@ -61,13 +63,13 @@ All target designs except `zcu106` require the [M.2 M-key Stack FMC] as the M.2 
 <!-- updater start -->
 ### Zynq UltraScale+ designs
 
-| Target board          | Target design   | FMC Slot(s) | Cameras | Active M.2 Slots | VCU   | Stack Design | Vivado<br> Edition | IP<br>License |
-|-----------------------|-----------------|-------------|---------|------------------|-------|--------------|-------|-------|
-| [ZCU104]              | `zcu104`        | LPC         | 4     | 1     | :white_check_mark: | :white_check_mark: | Standard :free: | -     |
-| [ZCU106]              | `zcu106`        | HPC0+HPC1   | 4     | 1     | :white_check_mark: | :x:                | Standard :free: | -     |
-| [ZCU106]              | `zcu106_hpc0`   | HPC0        | 4     | 2     | :white_check_mark: | :white_check_mark: | Standard :free: | -     |
-| [PYNQ-ZU]             | `pynqzu`        | LPC         | 2     | 1     | :x:                | :white_check_mark: | Standard :free: | -     |
-| [UltraZed-EV Carrier] | `uzev`          | HPC         | 4     | 2     | :white_check_mark: | :white_check_mark: | Standard :free: | -     |
+| Target board          | Target design   | FMC Slot(s) | Cameras | Active M.2 Slots | VCU   | Stack Design | Yocto | Vivado<br> Edition | IP<br>License |
+|-----------------------|-----------------|-------------|---------|------------------|-------|--------------|-------|-------|-------|
+| [ZCU104]              | `zcu104`        | LPC         | 4     | 1     | :white_check_mark: | :white_check_mark: | :white_check_mark: | Standard :free: | -     |
+| [ZCU106]              | `zcu106`        | HPC0+HPC1   | 4     | 1     | :white_check_mark: | :x:                | :white_check_mark: | Standard :free: | -     |
+| [ZCU106]              | `zcu106_hpc0`   | HPC0        | 4     | 2     | :white_check_mark: | :white_check_mark: | :white_check_mark: | Standard :free: | -     |
+| [PYNQ-ZU]             | `pynqzu`        | LPC         | 2     | 1     | :x:                | :white_check_mark: | :white_check_mark: | Standard :free: | -     |
+| [UltraZed-EV Carrier] | `uzev`          | HPC         | 4     | 2     | :white_check_mark: | :white_check_mark: | :white_check_mark: | Standard :free: | -     |
 
 [ZCU104]: https://www.xilinx.com/zcu104
 [ZCU106]: https://www.xilinx.com/zcu106
@@ -87,9 +89,11 @@ All target designs except `zcu106` require the [M.2 M-key Stack FMC] as the M.2 
    to the HPC0 connector.
 4. The `pynqzu` target design has video pipelines for only 2 cameras (CAM1 and CAM2 as
    labelled on the RPi Camera FMC). This is due to the resource limitations of the devices on these boards.
-5. The `zcu106_hpc0` and `uzev` target designs have support for 2x M.2 modules. To use the Hailo demo scripts,
-   at least one of these modules must be the [Hailo-8 M.2 AI Acceleration Module]. The second slot can be used
-   for a second Hailo module, or an NVMe SSD for storage.
+5. The `zcu106_hpc0` and `uzev` target designs have support for 2x M.2 modules (two Gen3 x4 PCIe root ports).
+   To use the Hailo demo scripts, at least one of these modules must be the [Hailo-8 M.2 AI Acceleration Module],
+   in M.2 slot 1. The second slot can be used for a second Hailo module, or an NVMe SSD for storage.
+   All other target designs have a single Gen3 x1 link to M.2 slot 1. On `zcu106`, the HPC1 connector
+   carries only one GT lane, so the second M.2 slot of the [FPGA Drive FMC Gen4] is not connected.
 
 ### Stack vs Non-stack designs
 
@@ -135,6 +139,17 @@ source the tool settings yourself before running the build.
 ```
 ./build.sh petalinux --target <target>
 ```
+
+#### Build Yocto (Linux only)
+
+```
+./build.sh yocto --target <target>
+```
+
+The Yocto / EDF flow produces a full SD-card image (`Yocto/<target>/images/linux/rootfs.wic.xz`).
+After writing it to the SD card, copy `BOOT.BIN` onto the card's first (FAT) partition. See the
+[user guide](https://hailo.camerafmc.com) for the SD card preparation and for how to run and test
+the design (PCIe link, `hailortcli`, cameras, the multi-camera demo).
 
 #### Build everything
 
@@ -183,12 +198,12 @@ minimum), expect a from-scratch single-target build closer to **3 to
 When building the PetaLinux project, you might experience one or more of the following error messages:
 
 ```
-ERROR: hailortcli-4.19.0-r0 do_configure: ExecutionError('/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/hailortcli/4.19.0-r0/temp/run.do_configure.2849196', 1, None, None)
-ERROR: Logfile of failure stored in: /home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/hailortcli/4.19.0-r0/temp/log.do_configure.2849196
-ERROR: Task (/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/project-spec/meta-user/meta-hailo/meta-hailo-libhailort/recipes-hailo/hailortcli/hailortcli_4.19.0.bb:do_configure) failed with exit code '1'
-ERROR: libhailort-4.19.0-r0 do_configure: ExecutionError('/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/libhailort/4.19.0-r0/temp/run.do_configure.2851680', 1, None, None)
-ERROR: Logfile of failure stored in: /home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/libhailort/4.19.0-r0/temp/log.do_configure.2851680
-ERROR: Task (/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/project-spec/meta-user/meta-hailo/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.19.0.bb:do_configure) failed with exit code '1'
+ERROR: hailortcli-4.23.0-r0 do_configure: ExecutionError('/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/hailortcli/4.23.0-r0/temp/run.do_configure.2849196', 1, None, None)
+ERROR: Logfile of failure stored in: /home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/hailortcli/4.23.0-r0/temp/log.do_configure.2849196
+ERROR: Task (/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/project-spec/meta-user/meta-hailo/meta-hailo-libhailort/recipes-hailo/hailortcli/hailortcli_4.23.0.bb:do_configure) failed with exit code '1'
+ERROR: libhailort-4.23.0-r0 do_configure: ExecutionError('/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/libhailort/4.23.0-r0/temp/run.do_configure.2851680', 1, None, None)
+ERROR: Logfile of failure stored in: /home/user/zynqmp-hailo-ai/PetaLinux/zcu106/build/tmp/work/cortexa72-cortexa53-xilinx-linux/libhailort/4.23.0-r0/temp/log.do_configure.2851680
+ERROR: Task (/home/user/zynqmp-hailo-ai/PetaLinux/zcu106/project-spec/meta-user/meta-hailo/meta-hailo-libhailort/recipes-hailo/libhailort/libhailort_4.23.0.bb:do_configure) failed with exit code '1'
 ```
 
 If you open one of the logfiles of those error messages, you will find error messages that are similar to the following:
@@ -220,7 +235,7 @@ sudo ln -s /etc/ssl/certs/ca-certificates.crt /usr/local/oe-sdk-hardcoded-buildp
 ```
 
 After running the above commands, re-run the build with
-`make clean TARGET=<board>` followed by `make petalinux TARGET=<board>` to
+`./build.sh clean --target <board>` followed by `./build.sh petalinux --target <board>` to
 discard the cached failure.
 
 ## Contribute

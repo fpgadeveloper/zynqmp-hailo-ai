@@ -648,6 +648,16 @@ if {[lindex $num_lanes 0] == "X4"} {
 #    address space for this to work, which is in line with the
 #    answer record mentioned above (although the images in that
 #    document do not align with what is written).
+# (5) For the above reasons, the AXI BAR of each root port is
+#    placed in the 32-bit window of M_AXI_HPM1_FPD (0xB000_0000-
+#    0xBFFF_FFFF) and mapped 1:1 to the same PCIe address. The
+#    device tree generator then exports it as a 32-bit
+#    non-prefetchable memory window, which is required by the
+#    non-prefetchable BAR0 of an NVMe SSD (a 64-bit window above
+#    4GB can only hold prefetchable BARs). 0xA000_0000 (the
+#    32-bit window of M_AXI_HPM0_FPD) is taken by the video IP.
+#    With two root ports, the 256MB window is split into 2x 128MB;
+#    each endpoint (Hailo-8 or NVMe SSD) needs less than 1MB.
 #    
 set_property -dict [list CONFIG.functional_mode {AXI_Bridge} \
 CONFIG.mode_selection {Advanced} \
@@ -676,7 +686,7 @@ CONFIG.ins_loss_profile {Chip-to-Chip} \
 CONFIG.type1_membase_memlimit_enable {Enabled} \
 CONFIG.type1_prefetchable_membase_memlimit {64bit_Enabled} \
 CONFIG.axibar_num {1} \
-CONFIG.axibar2pciebar_0 {0x0000000540000000} \
+CONFIG.axibar2pciebar_0 {0x00000000B0000000} \
 CONFIG.BASEADDR {0x00000000} \
 CONFIG.HIGHADDR {0x001FFFFF} \
 CONFIG.pf0_bar0_enabled {false} \
@@ -744,7 +754,7 @@ if {$dual_pcie} {
   CONFIG.type1_membase_memlimit_enable {Enabled} \
   CONFIG.type1_prefetchable_membase_memlimit {64bit_Enabled} \
   CONFIG.axibar_num {1} \
-  CONFIG.axibar2pciebar_0 {0x0000000550000000} \
+  CONFIG.axibar2pciebar_0 {0x00000000B8000000} \
   CONFIG.BASEADDR {0x00000000} \
   CONFIG.HIGHADDR {0x001FFFFF} \
   CONFIG.pf0_bar0_enabled {false} \
@@ -806,12 +816,15 @@ if {$dual_pcie} {
 }
 
 # Set the BAR0 offsets and sizes
-set_property offset 0x0540000000 [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_xdma_0_BAR0}]
-set_property range 256M [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_xdma_0_BAR0}]
+# (must match axibar2pciebar_0 of each XDMA, see note (5) above)
+# Connection automation puts both BAR0 segments at 0xB000_0000/0xB010_0000
+# (1M each), so move xdma_1 out of the way before growing xdma_0.
 if {$dual_pcie} {
-  set_property offset 0x0550000000 [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_xdma_1_BAR0}]
-  set_property range 256M [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_xdma_1_BAR0}]
+  set_property offset 0x00B8000000 [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_xdma_1_BAR0}]
+  set_property range 128M [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_xdma_1_BAR0}]
 }
+set_property offset 0x00B0000000 [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_xdma_0_BAR0}]
+set_property range 128M [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_xdma_0_BAR0}]
 
 # Add MGT external port for PCIe (SSD1)
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:pcie_7x_mgt_rtl:1.0 pci_exp_0

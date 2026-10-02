@@ -1,0 +1,86 @@
+From: Opsero <noreply@opsero.com>
+Date: Thu, 14 May 2026 00:00:00 +0000
+Subject: [PATCH] drm: xlnx: mixer: fix NULL deref + shutdown ordering in
+ connector_init
+
+When the xlnx_mixer driver is used in DRM-bridge mode (via the
+xlnx_mixer.connect_drm_bridge=1 kernel cmdline param), the mixer's
+.bind callback ends up calling xlnx_mix_connector_init() during
+component_bind_all(), which runs synchronously from inside
+xlnx_drm_pipeline_init() that is in turn called from xlnx_mix_probe().
+
+xlnx_mix_connector_init() does:
+
+	struct device *master_dev = &mixer->master->dev;
+	encoder = devm_kzalloc(master_dev, sizeof(*encoder), GFP_KERNEL);
+
+but mixer->master is assigned AFTER xlnx_drm_pipeline_init() returns:
+
+	component_add(&pdev->dev, &xlnx_mix_component_ops);   /* triggers bind synchronously */
+	...
+	mixer->master = xlnx_drm_pipeline_init(pdev);          /* assigned after bind */
+
+So mixer->master is NULL when the bind path runs, and dereferencing it
+oopses on the first devm_kzalloc().
+
+Naive fixes (using mixer->drm->dev with devm_kzalloc) introduce a
+shutdown-time use-after-free: devres on the master platform device
+unwinds during xlnx_unbind() before drm_managed_release() iterates the
+mode-config objects, so DRM walks dangling encoder memory and oopses
+inside drm_mode_config_cleanup().
+
+This patch:
+
+  1. Allocates the encoder via drmm_kzalloc(mixer->drm, ...) so the
+     allocation is owned by the drm_device's drm_managed lifecycle.
+
+  2. Replaces drm_simple_encoder_init() (which does NOT register a
+     cleanup action) with drmm_encoder_init() — so a
+     drm_encoder_cleanup() drm_managed action is registered AFTER the
+     drmm_kzalloc release action. Because drm_managed runs cleanups in
+     LIFO order, drm_encoder_cleanup() removes the encoder from
+     mode_config.encoder_list BEFORE the memory is reaped, and BEFORE
+     drm_mode_config_init_release() walks the (now-empty) list.
+
+With both pieces in place, init succeeds (no NULL deref) and shutdown
+ordering is correct (no use-after-free in drm_mode_config_cleanup ->
+drm_encoder_cleanup -> drm_mode_object_unregister).
+
+Signed-off-by: Opsero <noreply@opsero.com>
+---
+ drivers/gpu/drm/xlnx/xlnx_mixer.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/xlnx/xlnx_mixer.c b/drivers/gpu/drm/xlnx/xlnx_mixer.c
+--- a/drivers/gpu/drm/xlnx/xlnx_mixer.c
++++ b/drivers/gpu/drm/xlnx/xlnx_mixer.c
+@@ -20,6 +20,7 @@
+ #include <drm/drm_gem_dma_helper.h>
+ #include <drm/drm_framebuffer.h>
+ #include <drm/drm_modeset_helper_vtables.h>
++#include <drm/drm_managed.h>
+ #include <drm/drm_simple_kms_helper.h>
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+@@ -3212,16 +3213,15 @@ static int xlnx_mix_connector_init(struct xlnx_mix *mixer)
+ {
+ 	struct drm_encoder *encoder;
+ 	struct drm_connector *connector;
+-	struct device *master_dev = &mixer->master->dev;
+ 	int ret;
+
+-	encoder = devm_kzalloc(master_dev, sizeof(*encoder), GFP_KERNEL);
++	encoder = drmm_kzalloc(mixer->drm, sizeof(*encoder), GFP_KERNEL);
+ 	if (IS_ERR(encoder))
+ 		return PTR_ERR(encoder);
+
+ 	encoder->possible_crtcs |= drm_crtc_mask(&mixer->crtc.crtc);
+-	ret = drm_simple_encoder_init(mixer->drm, encoder,
+-				      DRM_MODE_ENCODER_NONE);
++	ret = drmm_encoder_init(mixer->drm, encoder, NULL,
++				DRM_MODE_ENCODER_NONE, NULL);
+ 	if (ret < 0)
+ 		return ret;
+
+--
+2.34.1

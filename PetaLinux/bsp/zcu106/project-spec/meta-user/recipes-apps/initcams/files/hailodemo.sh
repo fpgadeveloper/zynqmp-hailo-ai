@@ -68,12 +68,12 @@ FRM_RATE=25
 VMIX_PATH=$(find /sys/bus/platform/devices/ -name "*.v_mix" | head -n 1)
 VMIX=$(basename "$VMIX_PATH")
 
-# Find out the monitor's highest resolution
-output=$(modetest -c -M xlnx | grep "#0")
-DISP_RES=$(echo "$output" | awk '{print $2}')
-# Refresh rate (Hz) — pinned because the PL pixel-clock wizard only
-# produces the standard 60 Hz rate; without pinning, modetest picks the
-# first mode (often 144 Hz) and the dpsub silently rejects it.
+# Display mode — pinned to 1920x1080 at 60 Hz because the display pipeline
+# (video mixer, VTC and the PL pixel-clock wizard) is built for 1080p60.
+# Without pinning, modetest would take the monitor's preferred mode (#0),
+# which on many monitors is a higher resolution (e.g. 2560x1440) or a
+# faster refresh rate (e.g. 144 Hz) that this pipeline can't drive.
+DISP_RES=1920x1080
 DISP_RATE=60
 
 # Each camera quadrant is half the display in each dimension so the 2x2 grid

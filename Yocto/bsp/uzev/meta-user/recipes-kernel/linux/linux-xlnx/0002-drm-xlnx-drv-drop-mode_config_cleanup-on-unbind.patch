@@ -1,0 +1,59 @@
+From: Opsero <noreply@opsero.com>
+Date: Thu, 15 May 2026 00:00:00 +0000
+Subject: [PATCH] drm: xlnx: drv: drop manual drm_mode_config_cleanup() in
+ xlnx_unbind
+
+xlnx_unbind() calls drm_mode_config_cleanup(drm) followed by
+drm_dev_put(drm). In the legacy (non-managed) DRM init style this is
+correct, but when any sub-component (e.g. xlnx_mix_connector_init in
+connect_drm_bridge=1 mode) creates DRM objects via drm_managed-based
+helpers like drm_bridge_connector_init(), those objects register their
+own cleanup actions with drm_managed.
+
+The manual drm_mode_config_cleanup() runs first and cleans up the
+drm-managed connector (drm_connector_cleanup releases the ida ID, frees
+mode state, etc.). Then drm_dev_put() triggers drm_managed_release()
+which runs the connector's registered cleanup action a SECOND time:
+
+    WARNING: ida_free called for id=0 which is not allocated.
+    Unable to handle kernel NULL pointer dereference at virtual address 0
+    pc : 0x0
+    lr : drm_connector_free
+    Call trace:
+      drm_mode_object_put
+      __drm_atomic_helper_connector_destroy_state
+      drm_atomic_helper_connector_destroy_state
+      drm_connector_cleanup
+      drm_connector_cleanup_action
+      drm_managed_release
+      drm_dev_put
+
+Symptom: kernel oops during `poweroff` / `reboot` once the v_mix DRM
+bridge pipeline is in use.
+
+Drop the manual drm_mode_config_cleanup() call. drm_dev_put() ->
+drm_dev_release() -> drm_managed_release() will run the registered
+cleanup actions for any drm-managed objects. Objects allocated via the
+legacy non-managed APIs will still be reaped when drm_dev_release frees
+the drm_device itself — a small memory leak on shutdown, acceptable
+versus the current oops, and only relevant for drivers that still use
+legacy alloc paths on top of this xlnx-drm master.
+
+Signed-off-by: Opsero <noreply@opsero.com>
+---
+ drivers/gpu/drm/xlnx/xlnx_drv.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/xlnx/xlnx_drv.c b/drivers/gpu/drm/xlnx/xlnx_drv.c
+--- a/drivers/gpu/drm/xlnx/xlnx_drv.c
++++ b/drivers/gpu/drm/xlnx/xlnx_drv.c
+@@ -291,7 +291,6 @@ static void xlnx_unbind(struct device *dev)
+ 	}
+ 	xlnx_crtc_helper_fini(drm, xlnx_drm->crtc);
+ 	drm_kms_helper_poll_fini(drm);
+-	drm_mode_config_cleanup(drm);
+ 	drm_dev_put(drm);
+ }
+
+--
+2.34.1

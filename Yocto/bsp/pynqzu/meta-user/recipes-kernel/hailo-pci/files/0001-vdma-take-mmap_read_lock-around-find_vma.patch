@@ -1,0 +1,35 @@
+From: Opsero <noreply@opsero.com>
+Date: Mon, 25 May 2026 13:00:00 +0000
+Subject: [PATCH] vdma: take mmap_read_lock around find_vma() for kernel >= 6.5
+
+Kernel 6.5 made find_vma() assert that mmap_lock is held by the caller.
+Without it the assertion in include/linux/rwsem.h WARN()s on every
+gstreamer-fed user-pointer DMA mapping, the lookup races, and
+prepare_sg_table() then fails with "failed to set sg list for user
+buffer -22".
+
+Wrap the find_vma() call with mmap_read_lock()/mmap_read_unlock() — the
+same fix Hailo applied on the v5.3.0-hotfix-kernel-above-6-15 branch of
+hailort-drivers, backported here so the HailoRT 4.23 driver works on
+PetaLinux 2025.2 (kernel 6.12).
+
+Signed-off-by: Opsero <noreply@opsero.com>
+---
+ linux/vdma/memory.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/linux/vdma/memory.c b/linux/vdma/memory.c
+--- a/linux/vdma/memory.c
++++ b/linux/vdma/memory.c
+@@ -167,7 +167,9 @@
+     }
+
+     if (HAILO_DMA_DMABUF_BUFFER != buffer_type) {
++        mmap_read_lock(current->mm);
+         vma = find_vma(current->mm, addr_or_fd);
++        mmap_read_unlock(current->mm);
+         if (IS_ENABLED(HAILO_SUPPORT_MMIO_DMA_MAPPING)) {
+             if (NULL == vma) {
+                 dev_err(dev, "no vma for virt_addr/size = 0x%08lx/0x%08zx\n", addr_or_fd, size);
+--
+2.43.0

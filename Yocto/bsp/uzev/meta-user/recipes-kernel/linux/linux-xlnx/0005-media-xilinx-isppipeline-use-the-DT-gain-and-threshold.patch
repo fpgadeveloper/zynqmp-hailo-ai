@@ -1,0 +1,47 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Opsero <noreply@opsero.com>
+Date: Wed, 30 Sep 2026 17:44:05 -0400
+Subject: [PATCH] media: xilinx: isppipeline: use the DT gain and threshold
+ values
+
+For the xlnx,isppipeline-1.0 core, xisp_parse_of() reads the required
+xlnx,rgain, xlnx,bgain and xlnx,pawb properties into xisp->rgain,
+xisp->bgain and xisp->pawb. The red_gain, blue_gain and threshold
+controls are then created with fixed defaults (100, 350 and 512), and
+v4l2_ctrl_handler_setup() applies those defaults through s_ctrl, which
+overwrites the parsed values before the first stream-on. The device
+tree values never reach the hardware.
+
+Create these three controls with the parsed values as their defaults,
+so the device tree sets the initial state and the controls report it.
+
+Upstream-Status: Pending
+Signed-off-by: Opsero <noreply@opsero.com>
+---
+ drivers/media/platform/xilinx/xilinx-isppipeline.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/platform/xilinx/xilinx-isppipeline.c b/drivers/media/platform/xilinx/xilinx-isppipeline.c
+index ffc8a10..480435a 100644
+--- a/drivers/media/platform/xilinx/xilinx-isppipeline.c
++++ b/drivers/media/platform/xilinx/xilinx-isppipeline.c
+@@ -2648,8 +2648,17 @@ static int xisp_probe(struct platform_device *pdev)
+ 		v4l2_ctrl_handler_init(&xisp->ctrl_handler, ARRAY_SIZE(xisp_ctrls) +
+ 				       ARRAY_SIZE(xisp_ctrls_gamma_correct));
+ 		for (itr = 0; itr < ARRAY_SIZE(xisp_ctrls); itr++) {
+-			v4l2_ctrl_new_custom(&xisp->ctrl_handler,
+-					     &xisp_ctrls[itr], NULL);
++			struct v4l2_ctrl_config cfg = xisp_ctrls[itr];
++
++			/* Start from the values given in the device tree */
++			if (cfg.id == V4L2_CID_XILINX_ISP_RED_GAIN)
++				cfg.def = xisp->rgain;
++			else if (cfg.id == V4L2_CID_XILINX_ISP_BLUE_GAIN)
++				cfg.def = xisp->bgain;
++			else if (cfg.id == V4L2_CID_XILINX_ISP_THRESHOLD)
++				cfg.def = xisp->pawb;
++
++			v4l2_ctrl_new_custom(&xisp->ctrl_handler, &cfg, NULL);
+ 		}
+ 		for (itr = 1; itr < ARRAY_SIZE(xisp_ctrls_gamma_correct); itr++) {
+ 			v4l2_ctrl_new_custom(&xisp->ctrl_handler,

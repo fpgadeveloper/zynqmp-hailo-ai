@@ -1,0 +1,66 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Opsero <noreply@opsero.com>
+Date: Wed, 30 Sep 2026 17:43:42 -0400
+Subject: [PATCH] media: xilinx: isppipeline: fix gamma LUT plane order
+
+The ISP pipeline core (xlnx,isppipeline-1.0, the Vitis Vision
+ISPPipeline_accel) exposes its gamma tables as a single 768-byte
+gamma_lut memory at 0x800-0xbff. The core's gammacorrection stage
+applies table k (bytes 256*k .. 256*k+255) to plane k of its internal
+pixel, and that pixel is packed B, G, R from the least significant
+byte up (the demosaic stage writes b to bits 7:0, g to 15:8 and r to
+23:16). The per-plane tables are therefore:
+
+  0x800  blue
+  0x900  green
+  0xa00  red
+
+The driver writes the red table to 0x800, the blue table to 0x900 and
+the green table to 0xa00, so red_gamma acts on blue, green_gamma on red
+and blue_gamma on green. Fix the offsets to match the core.
+
+With the offsets fixed the default curves must also be equal: the
+defaults were red 2.0, green 1.5, blue 2.0, which after the offset
+fix would give every picture a green tint, and before it gave a
+magenta tint (the green curve landed on red). Use 2.0 for green as
+well: it is the value the driver already uses for red, blue and the
+mono gamma control, so the default output is colour neutral and the
+overall tone curve is unchanged for the two channels that were
+already at 2.0.
+
+Upstream-Status: Pending
+Signed-off-by: Opsero <noreply@opsero.com>
+---
+ drivers/media/platform/xilinx/xilinx-isppipeline.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/media/platform/xilinx/xilinx-isppipeline.c b/drivers/media/platform/xilinx/xilinx-isppipeline.c
+index e07aee7..ffc8a10 100644
+--- a/drivers/media/platform/xilinx/xilinx-isppipeline.c
++++ b/drivers/media/platform/xilinx/xilinx-isppipeline.c
+@@ -162,9 +162,13 @@
+ #define XISP_RGAIN_REG			(0x30)
+ #define XISP_BGAIN_REG			(0x38)
+ #define XISP_PAWB_REG			(0x54)
+-#define XISP_GAMMA_RED_REG		(0x800)
+-#define XISP_GAMMA_BLUE_REG		(0x900)
+-#define XISP_GAMMA_GREEN_REG		(0xA00)
++/*
++ * The gamma_lut memory holds one 256-entry table per plane, in the
++ * B, G, R plane order of the core's internal pixel format.
++ */
++#define XISP_GAMMA_BLUE_REG		(0x800)
++#define XISP_GAMMA_GREEN_REG		(0x900)
++#define XISP_GAMMA_RED_REG		(0xA00)
+ 
+ #define XISP_MAX_HEIGHT			(4320)
+ #define XISP_MAX_WIDTH			(8192)
+@@ -222,7 +226,7 @@
+ #define XISP_RED_GAMMA_MAX			(40)
+ #define XISP_RED_GAMMA_DEFALUT			(20)
+ #define XISP_GREEN_GAMMA_MAX			(40)
+-#define XISP_GREEN_GAMMA_DEFALUT		(15)
++#define XISP_GREEN_GAMMA_DEFALUT		(20)
+ #define XISP_BLUE_GAMMA_MAX			(40)
+ #define XISP_BLUE_GAMMA_DEFALUT			(20)
+ #define XISP_HDR_ALPHA_MAX			(256)

@@ -1,0 +1,47 @@
+From: Opsero <noreply@opsero.com>
+Date: Fri, 15 May 2026 00:00:00 +0000
+Subject: [PATCH] drm: xlnx: drv: disable vblank before cleanup on shutdown
+
+After the v_mix DRM bridge pipeline is in use, `sudo poweroff` /
+`reboot` triggers this WARN_ON in the drm_managed cleanup path:
+
+    xlnx-mixer ...: drm_WARN_ON(vblank->enabled &&
+                                drm_core_check_feature(dev, DRIVER_MODESET))
+    WARNING at drivers/gpu/drm/drm_vblank.c:507 drm_vblank_init_release
+    Call trace:
+      drm_vblank_init_release
+      drm_managed_release
+      drm_dev_put
+      xlnx_unbind
+
+The CRTC's vblank counter is still in the "enabled" state when the
+drm_managed cleanup runs because xlnx_unbind goes straight to
+drm_dev_unregister + drm_dev_put without first asking the modeset stack
+to power outputs down.
+
+The canonical fix is drm_atomic_helper_shutdown(), which walks every
+CRTC and commits an atomic transition to "DPMS off" — disabling
+encoders, planes and vblank along the way. Call it at the start of
+xlnx_unbind so subsequent drm_managed cleanup has nothing left to
+complain about. The system still powers off correctly without this
+(the WARN is non-fatal), but the trace shows up in `dmesg` on every
+shutdown which is noisy.
+
+Signed-off-by: Opsero <noreply@opsero.com>
+---
+ drivers/gpu/drm/xlnx/xlnx_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/gpu/drm/xlnx/xlnx_drv.c b/drivers/gpu/drm/xlnx/xlnx_drv.c
+--- a/drivers/gpu/drm/xlnx/xlnx_drv.c
++++ b/drivers/gpu/drm/xlnx/xlnx_drv.c
+@@ -283,6 +283,7 @@ static void xlnx_unbind(struct device *dev)
+ 	struct xlnx_drm *xlnx_drm = dev_get_drvdata(dev);
+ 	struct drm_device *drm = xlnx_drm->drm;
+
++	drm_atomic_helper_shutdown(drm);
+ 	drm_dev_unregister(drm);
+ 	component_unbind_all(&xlnx_drm->master->dev, drm);
+ 	if (xlnx_drm->fb) {
+--
+2.34.1

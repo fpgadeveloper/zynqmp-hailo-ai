@@ -222,6 +222,14 @@ set obj [get_runs impl_1]
 set_property -name "steps.write_bitstream.args.readback_file" -value "0" -objects $obj
 set_property -name "steps.write_bitstream.args.verbose" -value "0" -objects $obj
 
+# ZCU106 HPC1 target: with the default strategy, a handful of 250MHz paths
+# between the M_AXI_HPM0_FPD port of the PS and the control interconnect
+# miss timing by <0.1ns (routing-dominated). The explore strategy with
+# post-route physical optimization closes them.
+if { $target == "zcu106" } {
+  set_property strategy "Performance_ExplorePostRoutePhysOpt" $obj
+}
+
 # set the current impl run
 current_run -implementation [get_runs impl_1]
 

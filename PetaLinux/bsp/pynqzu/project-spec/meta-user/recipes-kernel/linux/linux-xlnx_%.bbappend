@@ -17,3 +17,13 @@ SRC_URI:append = " file://0002-drm-xlnx-drv-drop-mode_config_cleanup-on-unbind.p
 # Silence drm_vblank_init_release WARN_ON on shutdown by powering outputs
 # down via drm_atomic_helper_shutdown() before drm_dev_unregister().
 SRC_URI:append = " file://0003-drm-xlnx-drv-disable-vblank-before-cleanup-on-shutdown.patch"
+
+# ISP pipeline gamma LUTs were written to the wrong colour planes
+# (red_gamma acted on blue, green_gamma on red, blue_gamma on green) and the
+# default green curve differed from red/blue -> magenta cast on every camera
+# picture. Put the R/G/B tables on the R/G/B planes; all defaults 2.0.
+SRC_URI:append = " file://0004-media-xilinx-isppipeline-fix-gamma-LUT-plane-order.patch"
+
+# ISP pipeline: use the xlnx,rgain / xlnx,bgain / xlnx,pawb DT values as the
+# control defaults (they were overwritten by fixed defaults at probe).
+SRC_URI:append = " file://0005-media-xilinx-isppipeline-use-the-DT-gain-and-threshold.patch"

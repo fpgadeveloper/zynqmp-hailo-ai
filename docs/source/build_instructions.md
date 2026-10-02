@@ -59,9 +59,12 @@ All target designs except `zcu106` require the [M.2 M-key Stack FMC] as the M.2 
    to the HPC0 connector.
 4. The `pynqzu` target design has video pipelines for only 2 cameras (CAM1 and CAM2 as
    labelled on the RPi Camera FMC). This is due to the resource limitations of the device on this board.
-5. The `zcu106_hpc0` and `uzev` target designs have support for 2x M.2 modules. To use the Hailo demo scripts,
-   at least one of these modules must be the [Hailo-8 M.2 AI Acceleration Module]. The second slot can be used
-   for a second Hailo module, or an NVMe SSD for storage.
+5. The `zcu106_hpc0` and `uzev` target designs have support for 2x M.2 modules (two Gen3 x4 root ports).
+   To use the Hailo demo scripts, at least one of these modules must be the
+   [Hailo-8 M.2 AI Acceleration Module], in M.2 slot 1. The second slot can be used for a second Hailo
+   module, or an NVMe SSD for storage. All other target designs have a single Gen3 x1 link to M.2 slot 1:
+   on `zcu106`, the HPC1 connector carries only one GT lane, so the second M.2 slot of the
+   [FPGA Drive FMC Gen4] is not connected and cannot be used.
 
 ### Stack designs
 
@@ -105,7 +108,7 @@ To see the available targets and the state of a build:
 ```
 
 ```{note}
-The embedded Linux images (PetaLinux) can only be built on a
+The embedded Linux images (PetaLinux and Yocto) can only be built on a
 native Linux machine; everything else builds on Windows too. On Windows, the
 runner refuses the Linux-only stages up front and prints the exact command
 to run on the Linux machine.
@@ -188,10 +191,26 @@ connection), you can follow these instructions.
 
 The PetaLinux builds will then be configured for offline build.
 
+### Build Yocto
+
+The Yocto / EDF build also requires a native Linux machine, with Vitis 2025.2 and
+[Google's repo tool](https://gerrit.googlesource.com/git-repo/) installed. It builds the
+Vivado XSA first if it does not already exist:
+
+```
+./build.sh yocto --target <target>
+```
+
+Valid targets for Yocto are:
+{% for design in data.designs if design.yocto and design.publish %} `{{ design.label }}`{{ ", " if not loop.last else "." }} {% endfor %}
+
+The output products are written to `Yocto/<target>/images/linux/`. See [Yocto](yocto) for
+the details, the SD card preparation and the first boot.
+
 ### Build everything
 
-This builds everything that the target supports — the Vivado project and XSA
-and the PetaLinux image — and gathers the boot images into `bootimages/*.zip`:
+This builds everything that the target supports — the Vivado project and XSA,
+the PetaLinux image and the Yocto image — and gathers the boot images into `bootimages/*.zip`:
 
 ```
 ./build.sh all --target <target>
@@ -203,6 +222,7 @@ Linux-only stages as `BLOCKED` rather than failing.
 
 [supported Linux distributions]: https://docs.amd.com/r/en-US/ug1144-petalinux-tools-reference-guide/Setting-Up-Your-Environment
 
+(build-issue-and-workaround)=
 ### Build issue and workaround
 
 When building the PetaLinux project, you might experience one or more of the following error messages:
@@ -268,3 +288,9 @@ so the build runner stops before the `petalinux-package` step that
 produces `BOOT.BIN`. Re-run the same `./build.sh petalinux --target <board>`
 command; the second attempt finds the missing packages in the local
 sstate cache populated by the first run and completes cleanly.
+
+[RPi Camera FMC]: https://docs.opsero.com/op068/datasheet/overview/
+[FPGA Drive FMC Gen4]: https://docs.opsero.com/op063/datasheet/overview/
+[M.2 M-key Stack FMC]: https://docs.opsero.com/op073/datasheet/overview/
+[Hailo-8 M.2 AI Acceleration Module]: https://hailo.ai/products/ai-accelerators/hailo-8-m2-ai-acceleration-module/
+[ZCU106]: https://www.xilinx.com/zcu106

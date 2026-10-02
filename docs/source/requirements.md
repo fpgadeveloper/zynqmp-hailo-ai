@@ -4,15 +4,19 @@ In order to test this design on hardware, you will need the following:
 
 * Vivado 2025.2
 * Vitis 2025.2
-* PetaLinux Tools 2025.2
-* Linux PC or Virtual machine (for build)
+* PetaLinux Tools 2025.2 (for the PetaLinux flow), or
+  [Google's repo tool](https://gerrit.googlesource.com/git-repo/) (for the Yocto flow)
+* Linux PC or Virtual machine (for the Linux builds)
 * 1x [Hailo-8 M.2 AI Acceleration Module](https://hailo.ai/products/ai-accelerators/hailo-8-m2-ai-acceleration-module/)
 * One or more [Raspberry Pi Camera Module 2]
 * 1x [RPi Camera FMC]
 * 1x [FPGA Drive FMC Gen4] (for `zcu106` target design only)
 * 1x [M.2 M-key Stack FMC] (for all other designs)
-* One DisplayPort monitor supporting 2K (2560 x 1440) resolution
-* Alternatively: HDMI monitor supporting 2K resolution and a DP-to-HDMI adapter
+* One DisplayPort monitor that supports 1920x1080 at 60 Hz (the design outputs this mode)
+* Alternatively: an HDMI monitor that supports 1920x1080 at 60 Hz and a DP-to-HDMI adapter
+* A microSD card (8 GB or more) and a card reader
+* Optional, on the `zcu106_hpc0` and `uzev` targets only: a second Hailo-8 M.2 module or
+  an M.2 NVMe SSD for the second M.2 slot
 * One of the supported carrier boards listed below
 
 ## List of supported boards
